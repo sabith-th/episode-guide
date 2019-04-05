@@ -1,3 +1,5 @@
+import 'package:episode_guide/ui/home/carousel.dart';
+import 'package:episode_guide/ui/home/episode_list.dart';
 import 'package:flutter/material.dart';
 
 void main() => runApp(MyApp());
@@ -7,7 +9,11 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Episode Guide',
-      theme: ThemeData.dark(),
+      theme: ThemeData(
+        primaryColor: Colors.black,
+        accentColor: Colors.white,
+        fontFamily: 'AlegreyaSans'
+      ),
       home: HomePage(),
     );
   }
@@ -17,25 +23,12 @@ class HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.black,
       body: Container(
         child: Column(
           children: <Widget>[
-            Stack(
-              alignment: Alignment.bottomLeft,
-              children: <Widget>[
-                Image.asset("assets/images/tbl.jpg"),
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Text(
-                    'The Blacklist',
-                    style: TextStyle(
-                      fontSize: 16.0,
-                      color: Colors.white,
-                    ),
-                  ),
-                ),
-              ],
-            ),
+            Carousel(),
+            EpisodeList(),
           ],
         ),
       ),
