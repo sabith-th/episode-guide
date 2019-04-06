@@ -1,70 +1,22 @@
-import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:episode_guide/constants.dart';
+import 'package:episode_guide/graphql_operations/queries/queries.dart'
+    as queries;
+import 'package:episode_guide/models/next_episode.dart';
+import 'package:flutter/material.dart';
+import 'package:graphql_flutter/graphql_flutter.dart';
 
-List<Episode> mockEpisodes = [
-  Episode(
-    id: '266189',
-    seriesName: 'The Blacklist',
-    episodeName: 'Olivia Olson',
-    airDate: '2019-04-05',
-    imageUrl:
-        'https://www.thetvdb.com/banners/_cache/seasons/5c3d006d114c1.jpg',
-    season: '6',
-    episode: '15',
-  ),
-  Episode(
-    id: '95011',
-    seriesName: 'Modern Family',
-    episodeName: 'Can\'t Elope',
-    airDate: '2019-04-10',
-    imageUrl:
-        'https://www.thetvdb.com/banners/_cache/seasons/5bb461598d281.jpg',
-    season: '10',
-    episode: '20',
-  ),
-  Episode(
-    id: '269586',
-    seriesName: 'Brooklyn Nine-Nine',
-    episodeName: 'Casecation',
-    airDate: '2019-04-11',
-    imageUrl:
-        'https://www.thetvdb.com/banners/_cache/seasons/5c3d2ba25a94a.jpg',
-    season: '12',
-    episode: '12',
-  ),
-  Episode(
-    id: '278518',
-    seriesName: 'Last Week Tonight with John Oliver',
-    episodeName: 'Episode 156',
-    airDate: '2019-04-07',
-    imageUrl:
-        'https://www.thetvdb.com/banners/_cache/seasons/5c62b4f29266a.jpg',
-    season: '6',
-    episode: '7',
-  ),
+List<int> episodeIds = [
+  266189,
+  95011,
+  269586,
+  278518,
+  328724,
+  80379,
 ];
 
-class Episode {
-  final String id;
-  final String seriesName;
-  final String episodeName;
-  final String airDate;
-  final String imageUrl;
-  final String season;
-  final String episode;
-
-  Episode({
-    this.id,
-    this.season,
-    this.episode,
-    this.seriesName,
-    this.episodeName,
-    this.airDate,
-    this.imageUrl,
-  });
-}
-
-Widget _getEpisodeCard(Episode episode) {
+Widget _getEpisodeCard(NextEpisode episode) {
+  Episode nextEpisode = episode.episodesSummary.nextEpisode;
   return Card(
     child: Padding(
       padding: const EdgeInsets.all(8.0),
@@ -75,7 +27,7 @@ Widget _getEpisodeCard(Episode episode) {
               height: 110,
               width: 75,
               child: CachedNetworkImage(
-                imageUrl: episode.imageUrl,
+                imageUrl: TVDB_API_IMAGES + episode.images[0].fileName,
                 placeholder: (context, url) => new CircularProgressIndicator(),
                 errorWidget: (context, url, error) => new Icon(Icons.error),
               ),
@@ -88,20 +40,20 @@ Widget _getEpisodeCard(Episode episode) {
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: <Widget>[
                     Text(
-                      episode.seriesName,
+                      episode.series.seriesName,
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 24,
                       ),
                     ),
                     Text(
-                      'S${episode.season} E${episode.episode} - ${episode.episodeName}',
+                      'S${nextEpisode.airedSeason} E${nextEpisode.airedEpisodeNumber} - ${nextEpisode.episodeName}',
                       style: TextStyle(
                         fontSize: 18,
                       ),
                     ),
                     Text(
-                      'Airs: ${episode.airDate}',
+                      'Airs: ${nextEpisode.firstAired}',
                       style: TextStyle(
                         fontSize: 18,
                       ),
@@ -117,7 +69,30 @@ Widget _getEpisodeCard(Episode episode) {
   );
 }
 
-Widget _getEpisodes(List<Episode> episodes) {
+Future _queryEpisode(GraphQLClient client, int id) {
+  return client.query(
+    QueryOptions(
+      document: queries.getNextEpisode,
+      variables: <String, dynamic>{
+        'id': id,
+        'keyType': 'POSTER',
+      },
+    ),
+  );
+}
+
+Future<Widget> _getEpisodes(GraphQLClient client, List<int> episodeIds) async {
+  List<QueryResult> results =
+      await Future.wait(episodeIds.map((id) => _queryEpisode(client, id)));
+  List<NextEpisode> episodes = [];
+  for (int i = 0; i < results.length; i++) {
+    Map<String, dynamic> episodeMap = results[i].data['seriesInfo'];
+    NextEpisode nextEpisode = NextEpisode.fromJson(episodeMap);
+    if (nextEpisode.episodesSummary.nextEpisode != null) {
+      episodes.add(nextEpisode);
+    }
+  }
+
   return CustomScrollView(
     scrollDirection: Axis.vertical,
     shrinkWrap: true,
@@ -138,10 +113,26 @@ Widget _getEpisodes(List<Episode> episodes) {
 class EpisodeList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return Expanded(
-      child: Container(
-        child: _getEpisodes(mockEpisodes),
-      ),
+    return GraphQLConsumer(
+      builder: (GraphQLClient client) {
+        return Expanded(
+          child: Container(
+            child: FutureBuilder(
+              future: _getEpisodes(client, episodeIds),
+              builder: (context, snapshot) {
+                if (snapshot.hasData) {
+                  return snapshot.data;
+                } else if (snapshot.hasError) {
+                  return new Text('${snapshot.error}');
+                }
+                return new Center(
+                  child: new CircularProgressIndicator(),
+                );
+              },
+            ),
+          ),
+        );
+      },
     );
   }
 }

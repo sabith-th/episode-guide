@@ -1,0 +1,1 @@
+const String TVDB_API_IMAGES = "https://www.thetvdb.com/banners/";
