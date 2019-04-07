@@ -1,8 +1,7 @@
-import 'package:cached_network_image/cached_network_image.dart';
-import 'package:episode_guide/constants.dart';
 import 'package:episode_guide/graphql_operations/queries/queries.dart'
     as queries;
 import 'package:episode_guide/models/next_episode.dart';
+import 'package:episode_guide/ui/home/episode_card.dart';
 import 'package:flutter/material.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 
@@ -14,60 +13,6 @@ List<int> episodeIds = [
   328724,
   80379,
 ];
-
-Widget _getEpisodeCard(NextEpisode episode) {
-  Episode nextEpisode = episode.episodesSummary.nextEpisode;
-  return Card(
-    child: Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: IntrinsicHeight(
-        child: Row(
-          children: <Widget>[
-            SizedBox(
-              height: 110,
-              width: 75,
-              child: CachedNetworkImage(
-                imageUrl: TVDB_API_IMAGES + episode.images[0].fileName,
-                placeholder: (context, url) => new CircularProgressIndicator(),
-                errorWidget: (context, url, error) => new Icon(Icons.error),
-              ),
-            ),
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsets.only(left: 8.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: <Widget>[
-                    Text(
-                      episode.series.seriesName,
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 24,
-                      ),
-                    ),
-                    Text(
-                      'S${nextEpisode.airedSeason} E${nextEpisode.airedEpisodeNumber} - ${nextEpisode.episodeName}',
-                      style: TextStyle(
-                        fontSize: 18,
-                      ),
-                    ),
-                    Text(
-                      'Airs: ${nextEpisode.firstAired}',
-                      style: TextStyle(
-                        fontSize: 18,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    ),
-  );
-}
 
 Future _queryEpisode(GraphQLClient client, int id) {
   return client.query(
@@ -101,7 +46,7 @@ Future<Widget> _getEpisodes(GraphQLClient client, List<int> episodeIds) async {
         padding: const EdgeInsets.symmetric(vertical: 24.0),
         sliver: SliverList(
           delegate: SliverChildBuilderDelegate(
-            (context, index) => _getEpisodeCard(episodes[index]),
+            (context, index) => EpisodeCard(episode: episodes[index]),
             childCount: episodes.length,
           ),
         ),
