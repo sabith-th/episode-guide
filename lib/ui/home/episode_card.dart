@@ -1,4 +1,3 @@
-
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:episode_guide/constants.dart';
 import 'package:episode_guide/models/next_episode.dart';
@@ -22,9 +21,12 @@ class EpisodeCard extends StatelessWidget {
         onTap: () {
           Navigator.pushNamed(
             context,
-            SeriesDetails.routeName,
-            arguments:
-            SeriesDetailsArgs(episode.series.id, episode.series.seriesName),
+            SeriesDetailsScreen.routeName,
+            arguments: SeriesDetailsArgs(
+              episode.series.id,
+              episode.series.seriesName,
+              episode.images[0].fileName,
+            ),
           );
         },
         child: Padding(
@@ -32,14 +34,17 @@ class EpisodeCard extends StatelessWidget {
           child: IntrinsicHeight(
             child: Row(
               children: <Widget>[
-                SizedBox(
-                  height: 110,
-                  width: 75,
-                  child: CachedNetworkImage(
-                    imageUrl: TVDB_API_IMAGES + episode.images[0].fileName,
-                    placeholder: (context, url) =>
-                    new CircularProgressIndicator(),
-                    errorWidget: (context, url, error) => new Icon(Icons.error),
+                Hero(
+                  tag: 'seriesImage-${episode.series.id}',
+                  child: SizedBox(
+                    height: 110,
+                    width: 75,
+                    child: CachedNetworkImage(
+                      imageUrl: TVDB_API_IMAGES + episode.images[0].fileName,
+                      placeholder: (context, url) =>
+                          new CircularProgressIndicator(),
+                      errorWidget: (context, url, error) => new Icon(Icons.error),
+                    ),
                   ),
                 ),
                 Expanded(

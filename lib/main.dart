@@ -28,10 +28,16 @@ class MyApp extends StatelessWidget {
             primaryColor: Colors.black,
             accentColor: Colors.white,
             fontFamily: 'AlegreyaSans',
+            textTheme: TextTheme(
+              display1: TextStyle(
+                fontSize: 18,
+                color: Colors.white,
+              ),
+            ),
           ),
           home: HomePage(),
           routes: {
-            SeriesDetails.routeName: (context) => SeriesDetails(),
+            SeriesDetailsScreen.routeName: (context) => SeriesDetailsScreen(),
           },
         ),
       ),
