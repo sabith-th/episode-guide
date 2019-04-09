@@ -35,9 +35,7 @@ class EpisodesCardList extends StatelessWidget {
   Widget build(BuildContext context) {
     if (episodes.length == 0) {
       return Card(
-        child: Text(
-          'No new episodes...'
-        ),
+        child: Text('No new episodes...'),
       );
     }
 
@@ -85,7 +83,8 @@ class EpisodeList extends StatelessWidget {
             child: FutureBuilder(
               future: _getEpisodes(client, episodeIds),
               builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.done && snapshot.hasData) {
+                if (snapshot.connectionState == ConnectionState.done &&
+                    snapshot.hasData) {
                   return EpisodesCardList(episodes: snapshot.data);
                 } else if (snapshot.hasError) {
                   return new Text(

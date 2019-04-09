@@ -25,11 +25,19 @@ class MyApp extends StatelessWidget {
         child: MaterialApp(
           title: 'Episode Guide',
           theme: ThemeData(
+            primaryColorDark: Colors.grey[900],
+            primaryColorLight: Colors.grey[500],
             primaryColor: Colors.black,
             accentColor: Colors.white,
+            primarySwatch: Colors.blue,
             fontFamily: 'AlegreyaSans',
             textTheme: TextTheme(
-              display1: TextStyle(
+              headline: TextStyle(
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+                color: Colors.white,
+              ),
+              subhead: TextStyle(
                 fontSize: 18,
                 color: Colors.white,
               ),

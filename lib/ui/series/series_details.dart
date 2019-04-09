@@ -44,18 +44,11 @@ class ActorCard extends StatelessWidget {
                   children: <Widget>[
                     Text(
                       actor.name,
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 24,
-                        color: Colors.white,
-                      ),
+                      style: Theme.of(context).textTheme.headline,
                     ),
                     Text(
                       actor.role,
-                      style: TextStyle(
-                        fontSize: 18,
-                        color: Colors.white,
-                      ),
+                      style: Theme.of(context).textTheme.subhead,
                     ),
                   ],
                 ),
@@ -132,25 +125,15 @@ class SeriesDetailsScreen extends StatelessWidget {
                             children: <Widget>[
                               Text(
                                 args.name,
-                                style: TextStyle(
-                                  fontSize: 24,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.white,
-                                ),
+                                style: Theme.of(context).textTheme.headline,
                               ),
                               Text(
                                 'Airs every ${seriesDetails.series.airsDayOfWeek} at ${seriesDetails.series.airsTime}',
-                                style: TextStyle(
-                                  fontSize: 18,
-                                  color: Colors.white,
-                                ),
+                                style: Theme.of(context).textTheme.subhead,
                               ),
                               Text(
                                 seriesDetails.series.network,
-                                style: TextStyle(
-                                  fontSize: 18,
-                                  color: Colors.white,
-                                ),
+                                style: Theme.of(context).textTheme.subhead,
                               ),
                             ],
                           ),
@@ -172,10 +155,7 @@ class SeriesDetailsScreen extends StatelessWidget {
                 Text(
                   'Cast',
                   textAlign: TextAlign.left,
-                  style: TextStyle(
-                    fontSize: 24.0,
-                    color: Colors.white,
-                  ),
+                  style: Theme.of(context).textTheme.headline,
                 ),
                 Divider(
                   color: Colors.white,

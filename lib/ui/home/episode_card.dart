@@ -43,7 +43,8 @@ class EpisodeCard extends StatelessWidget {
                       imageUrl: TVDB_API_IMAGES + episode.images[0].fileName,
                       placeholder: (context, url) =>
                           new CircularProgressIndicator(),
-                      errorWidget: (context, url, error) => new Icon(Icons.error),
+                      errorWidget: (context, url, error) =>
+                          new Icon(Icons.error),
                     ),
                   ),
                 ),
@@ -56,22 +57,24 @@ class EpisodeCard extends StatelessWidget {
                       children: <Widget>[
                         Text(
                           episode.series.seriesName,
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 24,
-                          ),
+                          style: Theme.of(context)
+                              .textTheme
+                              .headline
+                              .copyWith(color: Colors.black),
                         ),
                         Text(
                           'S${nextEpisode.airedSeason} E${nextEpisode.airedEpisodeNumber} - ${nextEpisode.episodeName}',
-                          style: TextStyle(
-                            fontSize: 18,
-                          ),
+                          style: Theme.of(context)
+                              .textTheme
+                              .subhead
+                              .copyWith(color: Colors.black),
                         ),
                         Text(
                           'Airs: ${nextEpisode.firstAired}',
-                          style: TextStyle(
-                            fontSize: 18,
-                          ),
+                          style: Theme.of(context)
+                              .textTheme
+                              .subhead
+                              .copyWith(color: Colors.black),
                         ),
                       ],
                     ),
