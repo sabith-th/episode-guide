@@ -26,7 +26,41 @@ Future _queryEpisode(GraphQLClient client, int id) {
   );
 }
 
-Future<Widget> _getEpisodes(GraphQLClient client, List<int> episodeIds) async {
+class EpisodesCardList extends StatelessWidget {
+  final List<NextEpisode> episodes;
+
+  const EpisodesCardList({Key key, @required this.episodes}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    if (episodes.length == 0) {
+      return Card(
+        child: Text(
+          'No new episodes...'
+        ),
+      );
+    }
+
+    return CustomScrollView(
+      scrollDirection: Axis.vertical,
+      shrinkWrap: true,
+      slivers: <Widget>[
+        SliverPadding(
+          padding: const EdgeInsets.symmetric(vertical: 24.0),
+          sliver: SliverList(
+            delegate: SliverChildBuilderDelegate(
+              (context, index) => EpisodeCard(episode: episodes[index]),
+              childCount: episodes.length,
+            ),
+          ),
+        )
+      ],
+    );
+  }
+}
+
+Future<List<NextEpisode>> _getEpisodes(
+    GraphQLClient client, List<int> episodeIds) async {
   List<QueryResult> results =
       await Future.wait(episodeIds.map((id) => _queryEpisode(client, id)));
   List<NextEpisode> episodes = [];
@@ -38,21 +72,7 @@ Future<Widget> _getEpisodes(GraphQLClient client, List<int> episodeIds) async {
     }
   }
 
-  return CustomScrollView(
-    scrollDirection: Axis.vertical,
-    shrinkWrap: true,
-    slivers: <Widget>[
-      SliverPadding(
-        padding: const EdgeInsets.symmetric(vertical: 24.0),
-        sliver: SliverList(
-          delegate: SliverChildBuilderDelegate(
-            (context, index) => EpisodeCard(episode: episodes[index]),
-            childCount: episodes.length,
-          ),
-        ),
-      )
-    ],
-  );
+  return episodes;
 }
 
 class EpisodeList extends StatelessWidget {
@@ -65,10 +85,13 @@ class EpisodeList extends StatelessWidget {
             child: FutureBuilder(
               future: _getEpisodes(client, episodeIds),
               builder: (context, snapshot) {
-                if (snapshot.hasData) {
-                  return snapshot.data;
+                if (snapshot.connectionState == ConnectionState.done && snapshot.hasData) {
+                  return EpisodesCardList(episodes: snapshot.data);
                 } else if (snapshot.hasError) {
-                  return new Text('${snapshot.error}');
+                  return new Text(
+                    '${snapshot.error}',
+                    style: TextStyle(color: Colors.white),
+                  );
                 }
                 return new Center(
                   child: new CircularProgressIndicator(),
