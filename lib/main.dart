@@ -1,16 +1,41 @@
-import 'package:episode_guide/ui/home/carousel.dart';
-import 'package:episode_guide/ui/home/episode_list.dart';
+import 'package:bloc/bloc.dart';
+import 'package:episode_guide/constants.dart';
+import 'package:episode_guide/repositories/repositories.dart';
+import 'package:episode_guide/ui/home/widgets.dart';
 import 'package:episode_guide/ui/series/series_details.dart';
 import 'package:flutter/material.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 
-void main() => runApp(MyApp());
+class SimpleBlocDelegate extends BlocDelegate {
+  @override
+  onTransition(Transition transition) {
+    super.onTransition(transition);
+    print(transition);
+  }
+}
+
+void main() {
+  BlocSupervisor().delegate = SimpleBlocDelegate();
+
+  final HttpLink _httpLink = HttpLink(uri: TVDB_GRAPHQL_API);
+
+  final GraphQLClient _client =
+      GraphQLClient(link: _httpLink, cache: InMemoryCache());
+
+  final TvdbRepository tvdbRepository =
+      TvdbRepository(tvdbGraphQLClient: TvdbGraphQLClient(client: _client));
+
+  return runApp(MyApp(tvdbRepository: tvdbRepository));
+}
 
 class MyApp extends StatelessWidget {
+  final TvdbRepository tvdbRepository;
+
+  const MyApp({Key key, @required this.tvdbRepository}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
-    final HttpLink httpLink =
-        HttpLink(uri: 'https://tvdb-graphql-api.sabith-th.now.sh');
+    final HttpLink httpLink = HttpLink(uri: TVDB_GRAPHQL_API);
 
     final ValueNotifier<GraphQLClient> client = ValueNotifier(
       GraphQLClient(
@@ -43,27 +68,10 @@ class MyApp extends StatelessWidget {
               ),
             ),
           ),
-          home: HomePage(),
+          home: HomePage(tvdbRepository: tvdbRepository),
           routes: {
             SeriesDetailsScreen.routeName: (context) => SeriesDetailsScreen(),
           },
-        ),
-      ),
-    );
-  }
-}
-
-class HomePage extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.black,
-      body: Container(
-        child: Column(
-          children: <Widget>[
-            Carousel(),
-            EpisodeList(),
-          ],
         ),
       ),
     );
