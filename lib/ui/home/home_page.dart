@@ -46,7 +46,7 @@ class _HomePageState extends State<HomePage> {
           IconButton(
             icon: Icon(Icons.refresh),
             onPressed: () {
-              _nextEpisodesBloc.dispatch(RefreshNextEpisode(ids: episodeIds));
+              _nextEpisodesBloc.dispatch(RefreshNextEpisode(ids: seriesIds));
             },
           )
         ],
