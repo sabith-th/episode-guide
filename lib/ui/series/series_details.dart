@@ -2,12 +2,8 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:episode_guide/blocs/blocs.dart';
 import 'package:episode_guide/constants.dart';
 import 'package:episode_guide/models/series_details.dart';
-import 'package:episode_guide/repositories/repositories.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:graphql_flutter/graphql_flutter.dart';
-import 'package:episode_guide/graphql_operations/queries/queries.dart'
-    as queries;
 
 class SeriesDetailsArgs {
   final int id;

@@ -37,11 +37,24 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        title: Text(
+          'Episode Guide',
+          style: Theme.of(context).textTheme.headline,
+        ),
+        actions: <Widget>[
+          IconButton(
+            icon: Icon(Icons.refresh),
+            onPressed: () {
+              _nextEpisodesBloc.dispatch(RefreshNextEpisode(ids: episodeIds));
+            },
+          )
+        ],
+      ),
       backgroundColor: Colors.black,
       body: Container(
         child: Column(
           children: <Widget>[
-            Carousel(),
             Expanded(
               child: Container(
                 child: BlocBuilder(
@@ -62,7 +75,8 @@ class _HomePageState extends State<HomePage> {
 
                     if (state is NextEpisodeLoaded) {
                       final List<NextEpisode> episodes = state.nextEpisodes
-                          .where((ep) => ep.episodesSummary.nextEpisode != null)
+                          .where(
+                              (ep) => ep?.episodesSummary?.nextEpisode != null)
                           .toList();
 
                       return CustomScrollView(
@@ -70,7 +84,7 @@ class _HomePageState extends State<HomePage> {
                         shrinkWrap: true,
                         slivers: <Widget>[
                           SliverPadding(
-                            padding: const EdgeInsets.symmetric(vertical: 24.0),
+                            padding: const EdgeInsets.symmetric(vertical: 12.0),
                             sliver: SliverList(
                               delegate: SliverChildBuilderDelegate(
                                 (context, index) =>

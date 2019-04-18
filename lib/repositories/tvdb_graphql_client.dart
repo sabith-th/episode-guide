@@ -21,7 +21,10 @@ class TvdbGraphQLClient {
       ),
     );
     Map<String, dynamic> episodeMap = result.data['seriesInfo'];
-    return NextEpisode.fromJson(episodeMap);
+    if (episodeMap != null) {
+      return NextEpisode.fromJson(episodeMap);
+    }
+    return null;
   }
 
   Future<SeriesDetails> getSeriesDetails(int id) async {
