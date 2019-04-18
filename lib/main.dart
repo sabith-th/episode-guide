@@ -1,9 +1,11 @@
 import 'package:bloc/bloc.dart';
+import 'package:episode_guide/blocs/blocs.dart';
 import 'package:episode_guide/constants.dart';
 import 'package:episode_guide/repositories/repositories.dart';
 import 'package:episode_guide/ui/home/widgets.dart';
 import 'package:episode_guide/ui/series/series_details.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 
 class SimpleBlocDelegate extends BlocDelegate {
@@ -28,25 +30,36 @@ void main() {
   return runApp(MyApp(tvdbRepository: tvdbRepository));
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
   final TvdbRepository tvdbRepository;
 
   const MyApp({Key key, @required this.tvdbRepository}) : super(key: key);
 
   @override
+  _MyAppState createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  NextEpisodesBloc _nextEpisodesBloc;
+  SeriesDetailsBloc _seriesDetailsBloc;
+
+  @override
+  void initState() {
+    super.initState();
+    _nextEpisodesBloc = NextEpisodesBloc(tvdbRepository: widget.tvdbRepository);
+    _seriesDetailsBloc =
+        SeriesDetailsBloc(tvdbRepository: widget.tvdbRepository);
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final HttpLink httpLink = HttpLink(uri: TVDB_GRAPHQL_API);
-
-    final ValueNotifier<GraphQLClient> client = ValueNotifier(
-      GraphQLClient(
-        link: httpLink,
-        cache: InMemoryCache(),
-      ),
-    );
-
-    return GraphQLProvider(
-      client: client,
-      child: CacheProvider(
+    return BlocProvider(
+      bloc: _nextEpisodesBloc,
+      child: BlocProviderTree(
+        blocProviders: [
+          BlocProvider<NextEpisodesBloc>(bloc: _nextEpisodesBloc),
+          BlocProvider<SeriesDetailsBloc>(bloc: _seriesDetailsBloc),
+        ],
         child: MaterialApp(
           title: 'Episode Guide',
           theme: ThemeData(
@@ -68,12 +81,25 @@ class MyApp extends StatelessWidget {
               ),
             ),
           ),
-          home: HomePage(tvdbRepository: tvdbRepository),
+          initialRoute: '/',
           routes: {
+            '/': (context) {
+              return HomePage(
+                onInit: () => _nextEpisodesBloc
+                    .dispatch(FetchNextEpisode(ids: seriesIds)),
+              );
+            },
             SeriesDetailsScreen.routeName: (context) => SeriesDetailsScreen(),
           },
         ),
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    _seriesDetailsBloc.dispose();
+    _nextEpisodesBloc.dispose();
+    super.dispose();
   }
 }

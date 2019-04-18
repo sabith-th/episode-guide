@@ -1,8 +1,10 @@
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:episode_guide/blocs/blocs.dart';
 import 'package:episode_guide/constants.dart';
 import 'package:episode_guide/models/next_episode.dart';
 import 'package:episode_guide/ui/series/series_details.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 class EpisodeCard extends StatelessWidget {
   const EpisodeCard({
@@ -14,11 +16,14 @@ class EpisodeCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    SeriesDetailsBloc _seriesDetailsBloc = BlocProvider.of<SeriesDetailsBloc>(context);
     Episode nextEpisode = episode.episodesSummary.nextEpisode;
+
     return Card(
       child: InkWell(
         splashColor: Colors.black.withAlpha(30),
         onTap: () {
+          _seriesDetailsBloc.dispatch(FetchSeriesDetails(id: episode.series.id));
           Navigator.pushNamed(
             context,
             SeriesDetailsScreen.routeName,

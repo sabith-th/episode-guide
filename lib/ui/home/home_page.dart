@@ -1,8 +1,5 @@
-import 'dart:async';
-
 import 'package:episode_guide/blocs/blocs.dart';
 import 'package:episode_guide/models/next_episode.dart';
-import 'package:episode_guide/repositories/repositories.dart';
 import 'package:episode_guide/ui/home/widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -19,9 +16,9 @@ List<int> seriesIds = [
 ];
 
 class HomePage extends StatefulWidget {
-  final TvdbRepository tvdbRepository;
+  final void Function() onInit;
 
-  const HomePage({Key key, @required this.tvdbRepository}) : super(key: key);
+  const HomePage({Key key, @required this.onInit}) : super(key: key);
 
   @override
   _HomePageState createState() => _HomePageState();
@@ -29,14 +26,12 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   NextEpisodesBloc _nextEpisodesBloc;
-  Completer<void> _refreshCompleter;
 
   @override
   void initState() {
+    widget.onInit();
+    _nextEpisodesBloc = BlocProvider.of<NextEpisodesBloc>(context);
     super.initState();
-    _refreshCompleter = Completer<void>();
-    _nextEpisodesBloc = NextEpisodesBloc(tvdbRepository: widget.tvdbRepository);
-    _nextEpisodesBloc.dispatch(FetchNextEpisode(ids: seriesIds));
   }
 
   @override
@@ -70,32 +65,21 @@ class _HomePageState extends State<HomePage> {
                           .where((ep) => ep.episodesSummary.nextEpisode != null)
                           .toList();
 
-                      _refreshCompleter?.complete();
-                      _refreshCompleter = Completer();
-
-                      return RefreshIndicator(
-                        onRefresh: () {
-                          _nextEpisodesBloc
-                              .dispatch(RefreshNextEpisode(ids: seriesIds));
-                          return _refreshCompleter.future;
-                        },
-                        child: CustomScrollView(
-                          scrollDirection: Axis.vertical,
-                          shrinkWrap: true,
-                          slivers: <Widget>[
-                            SliverPadding(
-                              padding:
-                                  const EdgeInsets.symmetric(vertical: 24.0),
-                              sliver: SliverList(
-                                delegate: SliverChildBuilderDelegate(
-                                  (context, index) =>
-                                      EpisodeCard(episode: episodes[index]),
-                                  childCount: episodes.length,
-                                ),
+                      return CustomScrollView(
+                        scrollDirection: Axis.vertical,
+                        shrinkWrap: true,
+                        slivers: <Widget>[
+                          SliverPadding(
+                            padding: const EdgeInsets.symmetric(vertical: 24.0),
+                            sliver: SliverList(
+                              delegate: SliverChildBuilderDelegate(
+                                (context, index) =>
+                                    EpisodeCard(episode: episodes[index]),
+                                childCount: episodes.length,
                               ),
-                            )
-                          ],
-                        ),
+                            ),
+                          )
+                        ],
                       );
                     }
 
@@ -113,11 +97,5 @@ class _HomePageState extends State<HomePage> {
         ),
       ),
     );
-  }
-
-  @override
-  void dispose() {
-    _nextEpisodesBloc.dispose();
-    super.dispose();
   }
 }
