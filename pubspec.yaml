@@ -28,6 +28,7 @@ dependencies:
   graphql_flutter: ^1.0.0-beta
   flutter_bloc: ^0.11.0
   equatable: ^0.2.0
+  shared_preferences: ^0.5.2
 
 dev_dependencies:
   flutter_test:
