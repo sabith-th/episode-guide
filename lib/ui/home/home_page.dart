@@ -26,17 +26,16 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  NextEpisodesBloc _nextEpisodesBloc;
-
   @override
   void initState() {
     widget.onInit();
-    _nextEpisodesBloc = BlocProvider.of<NextEpisodesBloc>(context);
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
+    final NextEpisodesBloc _nextEpisodesBloc =
+        BlocProvider.of<NextEpisodesBloc>(context);
     return Scaffold(
       appBar: AppBar(
         title: Text(
@@ -105,9 +104,11 @@ class _HomePageState extends State<HomePage> {
                     }
 
                     if (state is NextEpisodeError) {
-                      return Text(
-                        'Something went wrong! Please refresh',
-                        style: TextStyle(color: Colors.red),
+                      return Center(
+                        child: Text(
+                          'Something went wrong! Please refresh',
+                          style: TextStyle(color: Colors.red),
+                        ),
                       );
                     }
                   },

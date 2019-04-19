@@ -41,6 +41,7 @@ class MyApp extends StatefulWidget {
 class _MyAppState extends State<MyApp> {
   NextEpisodesBloc _nextEpisodesBloc;
   SeriesDetailsBloc _seriesDetailsBloc;
+  SearchSeriesBloc _searchSeriesBloc;
 
   @override
   void initState() {
@@ -48,6 +49,7 @@ class _MyAppState extends State<MyApp> {
     _nextEpisodesBloc = NextEpisodesBloc(tvdbRepository: widget.tvdbRepository);
     _seriesDetailsBloc =
         SeriesDetailsBloc(tvdbRepository: widget.tvdbRepository);
+    _searchSeriesBloc = SearchSeriesBloc(tvdbRepository: widget.tvdbRepository);
   }
 
   @override
@@ -58,6 +60,7 @@ class _MyAppState extends State<MyApp> {
         blocProviders: [
           BlocProvider<NextEpisodesBloc>(bloc: _nextEpisodesBloc),
           BlocProvider<SeriesDetailsBloc>(bloc: _seriesDetailsBloc),
+          BlocProvider<SearchSeriesBloc>(bloc: _searchSeriesBloc),
         ],
         child: MaterialApp(
           title: 'Episode Guide',
@@ -100,6 +103,7 @@ class _MyAppState extends State<MyApp> {
   void dispose() {
     _seriesDetailsBloc.dispose();
     _nextEpisodesBloc.dispose();
+    _searchSeriesBloc.dispose();
     super.dispose();
   }
 }

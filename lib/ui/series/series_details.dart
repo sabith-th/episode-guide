@@ -107,7 +107,7 @@ class SeriesDetailsScreen extends StatelessWidget {
                               height: 165,
                               width: 112.5,
                               child: CachedNetworkImage(
-                                imageUrl: TVDB_API_IMAGES + args.image,
+                                imageUrl:  TVDB_API_IMAGES + args.image,
                                 placeholder: (context, url) =>
                                     new CircularProgressIndicator(),
                                 errorWidget: (context, url, error) =>
