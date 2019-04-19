@@ -26,14 +26,14 @@ dependencies:
   json_annotation: ^2.0.0
   cached_network_image: ^0.7.0
   graphql_flutter: ^1.0.0-beta
+  flutter_bloc: ^0.11.0
+  equatable: ^0.2.0
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
   build_runner: ^1.0.0
   json_serializable: ^2.0.0
-  flutter_bloc: ^0.9.0
-  equatable: ^0.2.0
 
 # For information on the generic Dart part of this file, see the
 # following page: https://www.dartlang.org/tools/pub/pubspec

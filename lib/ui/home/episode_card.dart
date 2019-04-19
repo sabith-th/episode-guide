@@ -2,7 +2,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:episode_guide/blocs/blocs.dart';
 import 'package:episode_guide/constants.dart';
 import 'package:episode_guide/models/next_episode.dart';
-import 'package:episode_guide/ui/series/series_details.dart';
+import 'package:episode_guide/ui/widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 

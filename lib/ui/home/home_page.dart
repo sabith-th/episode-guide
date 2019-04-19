@@ -1,6 +1,6 @@
 import 'package:episode_guide/blocs/blocs.dart';
 import 'package:episode_guide/models/next_episode.dart';
-import 'package:episode_guide/ui/home/widgets.dart';
+import 'package:episode_guide/ui/widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -16,6 +16,7 @@ List<int> seriesIds = [
 ];
 
 class HomePage extends StatefulWidget {
+  static const routeName = '/';
   final void Function() onInit;
 
   const HomePage({Key key, @required this.onInit}) : super(key: key);
@@ -43,6 +44,12 @@ class _HomePageState extends State<HomePage> {
           style: Theme.of(context).textTheme.headline,
         ),
         actions: <Widget>[
+          IconButton(
+            icon: Icon(Icons.search),
+            onPressed: () {
+              Navigator.pushNamed(context, SearchSeriesScreen.routeName);
+            },
+          ),
           IconButton(
             icon: Icon(Icons.refresh),
             onPressed: () {
