@@ -3,9 +3,15 @@ const String getNextEpisode = r'''
     seriesInfo(id: $id) {
       series {
         id
+        seriesId
         seriesName
-        airsTime
+        overview
         network
+        banner
+        airsTime
+        airsDayOfWeek
+        rating
+        siteRating
       }
       episodesSummary {
         nextEpisode {

@@ -1,7 +1,8 @@
 const String getSeriesDetails = r'''
-  query SeriesDetails($id: Int!) {
+  query SeriesDetails($id: Int!, $keyType: KeyType!) {
     seriesInfo(id: $id) {
       series {
+        id
         seriesId
         seriesName
         overview
@@ -17,6 +18,11 @@ const String getSeriesDetails = r'''
         role
         image
         sortOrder
+      }
+      images(keyType: $keyType) {
+        fileName
+        resolution
+        thumbnail
       }
     }
   }

@@ -1,3 +1,4 @@
+import 'package:episode_guide/models/models.dart';
 import 'package:json_annotation/json_annotation.dart';
 
 part 'next_episode.g.dart';
@@ -14,20 +15,6 @@ class NextEpisode {
       _$NextEpisodeFromJson(json);
 
   Map<String, dynamic> toJson() => _$NextEpisodeToJson(this);
-}
-
-@JsonSerializable()
-class Series {
-  final int id;
-  final String seriesName;
-  final String airsTime;
-  final String network;
-
-  Series(this.id, this.seriesName, this.airsTime, this.network);
-
-  factory Series.fromJson(Map<String, dynamic> json) => _$SeriesFromJson(json);
-
-  Map<String, dynamic> toJson() => _$SeriesToJson(this);
 }
 
 @JsonSerializable()
@@ -59,15 +46,3 @@ class Episode {
   Map<String, dynamic> toJson() => _$EpisodeToJson(this);
 }
 
-@JsonSerializable()
-class Images {
-  final String fileName;
-  final String resolution;
-  final String thumbnail;
-
-  Images(this.fileName, this.resolution, this.thumbnail);
-
-  factory Images.fromJson(Map<String, dynamic> json) => _$ImagesFromJson(json);
-
-  Map<String, dynamic> toJson() => _$ImagesToJson(this);
-}

@@ -14,35 +14,18 @@ SeriesDetails _$SeriesDetailsFromJson(Map<String, dynamic> json) {
       (json['actors'] as List)
           ?.map((e) =>
               e == null ? null : Actor.fromJson(e as Map<String, dynamic>))
+          ?.toList(),
+      (json['images'] as List)
+          ?.map((e) =>
+              e == null ? null : Images.fromJson(e as Map<String, dynamic>))
           ?.toList());
 }
 
 Map<String, dynamic> _$SeriesDetailsToJson(SeriesDetails instance) =>
-    <String, dynamic>{'series': instance.series, 'actors': instance.actors};
-
-Series _$SeriesFromJson(Map<String, dynamic> json) {
-  return Series(
-      json['seriesId'] as String,
-      json['seriesName'] as String,
-      json['overview'] as String,
-      json['network'] as String,
-      json['banner'] as String,
-      json['airsTime'] as String,
-      json['airsDayOfWeek'] as String,
-      json['rating'] as String,
-      (json['siteRating'] as num)?.toDouble());
-}
-
-Map<String, dynamic> _$SeriesToJson(Series instance) => <String, dynamic>{
-      'seriesId': instance.seriesId,
-      'seriesName': instance.seriesName,
-      'overview': instance.overview,
-      'network': instance.network,
-      'banner': instance.banner,
-      'airsTime': instance.airsTime,
-      'airsDayOfWeek': instance.airsDayOfWeek,
-      'rating': instance.rating,
-      'siteRating': instance.siteRating
+    <String, dynamic>{
+      'series': instance.series,
+      'actors': instance.actors,
+      'images': instance.images
     };
 
 Actor _$ActorFromJson(Map<String, dynamic> json) {

@@ -28,18 +28,6 @@ Map<String, dynamic> _$NextEpisodeToJson(NextEpisode instance) =>
       'images': instance.images
     };
 
-Series _$SeriesFromJson(Map<String, dynamic> json) {
-  return Series(json['id'] as int, json['seriesName'] as String,
-      json['airsTime'] as String, json['network'] as String);
-}
-
-Map<String, dynamic> _$SeriesToJson(Series instance) => <String, dynamic>{
-      'id': instance.id,
-      'seriesName': instance.seriesName,
-      'airsTime': instance.airsTime,
-      'network': instance.network
-    };
-
 EpisodesSummary _$EpisodesSummaryFromJson(Map<String, dynamic> json) {
   return EpisodesSummary(json['nextEpisode'] == null
       ? null
@@ -59,15 +47,4 @@ Map<String, dynamic> _$EpisodeToJson(Episode instance) => <String, dynamic>{
       'episodeName': instance.episodeName,
       'firstAired': instance.firstAired,
       'airedEpisodeNumber': instance.airedEpisodeNumber
-    };
-
-Images _$ImagesFromJson(Map<String, dynamic> json) {
-  return Images(json['fileName'] as String, json['resolution'] as String,
-      json['thumbnail'] as String);
-}
-
-Map<String, dynamic> _$ImagesToJson(Images instance) => <String, dynamic>{
-      'fileName': instance.fileName,
-      'resolution': instance.resolution,
-      'thumbnail': instance.thumbnail
     };

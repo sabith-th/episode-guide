@@ -34,6 +34,7 @@ class TvdbGraphQLClient {
         document: queries.getSeriesDetails,
         variables: <String, dynamic>{
           'id': id,
+          'keyType': 'POSTER',
         },
       ),
     );
