@@ -68,11 +68,36 @@ class SeriesDetailsScreen extends StatelessWidget {
     final SeriesDetailsArgs args = ModalRoute.of(context).settings.arguments;
     final SeriesDetailsBloc _seriesDetailsBloc =
         BlocProvider.of<SeriesDetailsBloc>(context);
+    final FavoritesBloc _favoritesBloc =
+        BlocProvider.of<FavoritesBloc>(context);
     return Scaffold(
       appBar: AppBar(
         title: Text(args.name),
       ),
       backgroundColor: Colors.black,
+      floatingActionButton: BlocBuilder(
+        bloc: _favoritesBloc,
+        builder: (_, FavoritesState state) {
+          bool isFavorite = false;
+          if (state is FavoritesLoaded && state.seriesIds.contains(args.id)) {
+            isFavorite = true;
+          }
+          return FloatingActionButton(
+            onPressed: () {
+              if (isFavorite) {
+                _favoritesBloc.dispatch(RemoveFavorite(seriesId: args.id));
+              } else {
+                _favoritesBloc.dispatch(AddFavorite(seriesId: args.id));
+              }
+            },
+            foregroundColor: Colors.green,
+            child: Icon(
+              isFavorite ? Icons.star : Icons.star_border,
+              size: 36,
+            ),
+          );
+        },
+      ),
       body: Center(
         child: BlocBuilder(
           bloc: _seriesDetailsBloc,

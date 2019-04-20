@@ -1,4 +1,7 @@
+import 'dart:async';
+
 import 'package:bloc/bloc.dart';
+import 'package:episode_guide/blocs/blocs.dart';
 import 'package:episode_guide/models/next_episode.dart';
 import 'package:episode_guide/repositories/repositories.dart';
 import 'package:equatable/equatable.dart';
@@ -38,8 +41,17 @@ class NextEpisodeLoaded extends NextEpisodeState {
 
 class NextEpisodesBloc extends Bloc<NextEpisodeEvent, NextEpisodeState> {
   final TvdbRepository tvdbRepository;
+  final FavoritesBloc favoritesBloc;
+  StreamSubscription favoritesSubscription;
 
-  NextEpisodesBloc({@required this.tvdbRepository});
+  NextEpisodesBloc({this.favoritesBloc, @required this.tvdbRepository}) {
+    favoritesSubscription = favoritesBloc.state.listen((state) {
+      if (state is FavoritesLoaded) {
+        dispatch(FetchNextEpisode(
+            ids: (favoritesBloc.currentState as FavoritesLoaded).seriesIds));
+      }
+    });
+  }
 
   @override
   NextEpisodeState get initialState => NextEpisodeEmpty();
@@ -69,4 +81,12 @@ class NextEpisodesBloc extends Bloc<NextEpisodeEvent, NextEpisodeState> {
       }
     }
   }
+
+  @override
+  void dispose() {
+    favoritesSubscription.cancel();
+    super.dispose();
+  }
+
+
 }

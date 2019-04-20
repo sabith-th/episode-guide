@@ -4,17 +4,6 @@ import 'package:episode_guide/ui/widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-List<int> seriesIds = [
-  266189,
-  95011,
-  269586,
-  278518,
-  328724,
-  80379,
-  121361,
-  328487
-];
-
 class HomePage extends StatefulWidget {
   static const routeName = '/';
   final void Function() onInit;
@@ -36,6 +25,8 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     final NextEpisodesBloc _nextEpisodesBloc =
         BlocProvider.of<NextEpisodesBloc>(context);
+    final FavoritesBloc _favoritesBloc =
+        BlocProvider.of<FavoritesBloc>(context);
     return Scaffold(
       appBar: AppBar(
         title: Text(
@@ -52,7 +43,7 @@ class _HomePageState extends State<HomePage> {
           IconButton(
             icon: Icon(Icons.refresh),
             onPressed: () {
-              _nextEpisodesBloc.dispatch(RefreshNextEpisode(ids: seriesIds));
+              _favoritesBloc.dispatch(FetchFavorites());
             },
           )
         ],

@@ -17,6 +17,14 @@ class AddFavorite extends FavoritesEvent {
         super([seriesId]);
 }
 
+class RemoveFavorite extends FavoritesEvent {
+  final int seriesId;
+
+  RemoveFavorite({@required this.seriesId})
+      : assert(seriesId != null),
+        super([seriesId]);
+}
+
 abstract class FavoritesState extends Equatable {
   FavoritesState([List props = const []]) : super(props);
 }
@@ -54,6 +62,27 @@ class FavoritesBloc extends Bloc<FavoritesEvent, FavoritesState> {
       } catch (error) {
         print('Error loading favorites: $error');
         yield FavoritesError();
+      }
+    } else if (event is AddFavorite) {
+      if (currentState is FavoritesLoaded) {
+        final List<int> updatedSeriesIds =
+            List.from((currentState as FavoritesLoaded).seriesIds)
+              ..add(event.seriesId);
+        yield FavoritesLoaded(seriesIds: updatedSeriesIds);
+        FavoritesRepository.addFavoriteSeries(event.seriesId);
+      } else if (currentState is FavoritesEmpty) {
+        final List<int> updatedSeriesIds = [event.seriesId];
+        yield FavoritesLoaded(seriesIds: updatedSeriesIds);
+        FavoritesRepository.addFavoriteSeries(event.seriesId);
+      }
+    } else if (event is RemoveFavorite) {
+      if (currentState is FavoritesLoaded) {
+        final updatedSeriesIds = (currentState as FavoritesLoaded)
+            .seriesIds
+            .where((id) => id != event.seriesId)
+            .toList();
+        yield FavoritesLoaded(seriesIds: updatedSeriesIds);
+        FavoritesRepository.removeFavoriteSeries(event.seriesId);
       }
     }
   }

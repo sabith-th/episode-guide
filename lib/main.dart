@@ -39,6 +39,7 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
+  final FavoritesBloc favoritesBloc = FavoritesBloc();
   NextEpisodesBloc _nextEpisodesBloc;
   SeriesDetailsBloc _seriesDetailsBloc;
   SearchSeriesBloc _searchSeriesBloc;
@@ -46,7 +47,8 @@ class _MyAppState extends State<MyApp> {
   @override
   void initState() {
     super.initState();
-    _nextEpisodesBloc = NextEpisodesBloc(tvdbRepository: widget.tvdbRepository);
+    _nextEpisodesBloc = NextEpisodesBloc(
+        tvdbRepository: widget.tvdbRepository, favoritesBloc: favoritesBloc);
     _seriesDetailsBloc =
         SeriesDetailsBloc(tvdbRepository: widget.tvdbRepository);
     _searchSeriesBloc = SearchSeriesBloc(tvdbRepository: widget.tvdbRepository);
@@ -58,6 +60,7 @@ class _MyAppState extends State<MyApp> {
       bloc: _nextEpisodesBloc,
       child: BlocProviderTree(
         blocProviders: [
+          BlocProvider<FavoritesBloc>(bloc: favoritesBloc),
           BlocProvider<NextEpisodesBloc>(bloc: _nextEpisodesBloc),
           BlocProvider<SeriesDetailsBloc>(bloc: _seriesDetailsBloc),
           BlocProvider<SearchSeriesBloc>(bloc: _searchSeriesBloc),
@@ -87,8 +90,7 @@ class _MyAppState extends State<MyApp> {
           routes: {
             HomePage.routeName: (context) {
               return HomePage(
-                onInit: () => _nextEpisodesBloc
-                    .dispatch(FetchNextEpisode(ids: seriesIds)),
+                onInit: () => favoritesBloc.dispatch(FetchFavorites()),
               );
             },
             SeriesDetailsScreen.routeName: (context) => SeriesDetailsScreen(),
