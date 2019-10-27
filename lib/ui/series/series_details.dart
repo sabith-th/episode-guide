@@ -22,39 +22,30 @@ class ActorCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.all(8.0),
-      child: IntrinsicHeight(
-        child: Row(
-          children: <Widget>[
-            SizedBox(
-              height: 110,
-              width: 75,
-              child: CachedNetworkImage(
-                imageUrl: TVDB_API_IMAGES + actor.image,
-                placeholder: (context, url) => new CircularProgressIndicator(),
-                errorWidget: (context, url, error) => new Icon(Icons.error),
-              ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          CircleAvatar(
+            radius: 45.0,
+            backgroundImage: CachedNetworkImageProvider(
+              TVDB_API_IMAGES + actor.image,
             ),
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsets.only(left: 8.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: <Widget>[
-                    Text(
-                      actor.name,
-                      style: Theme.of(context).textTheme.headline,
-                    ),
-                    Text(
-                      actor.role,
-                      style: Theme.of(context).textTheme.subhead,
-                    ),
-                  ],
-                ),
-              ),
-            )
-          ],
-        ),
+          ),
+          Text(
+            actor.name,
+            style: TextStyle(
+              fontSize: 14.0,
+              color: Colors.white,
+            ),
+          ),
+          Text(
+            actor.role,
+            style: TextStyle(
+              fontSize: 10.0,
+              color: Colors.white,
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -119,96 +110,99 @@ class SeriesDetailsScreen extends StatelessWidget {
               seriesDetails.actors
                   .sort((a, b) => a.sortOrder.compareTo(b.sortOrder));
 
-              return Container(
-                child: Column(
-                  children: <Widget>[
-                    IntrinsicHeight(
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: <Widget>[
-                          Hero(
-                            tag: 'seriesImage-${args.id}',
-                            child: SizedBox(
-                              height: 165,
-                              width: 112.5,
-                              child: CachedNetworkImage(
-                                imageUrl: TVDB_API_IMAGES +
-                                    (args.image != null
-                                        ? args.image
-                                        : seriesDetails.images[0].fileName),
-                                placeholder: (context, url) =>
-                                    new CircularProgressIndicator(),
-                                errorWidget: (context, url, error) =>
-                                    new Icon(Icons.error),
+              return ListView(
+                shrinkWrap: true,
+                children: <Widget>[
+                  Column(
+                    children: <Widget>[
+                      IntrinsicHeight(
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: <Widget>[
+                            Hero(
+                              tag: 'seriesImage-${args.id}',
+                              child: SizedBox(
+                                height: 165,
+                                width: 112.5,
+                                child: CachedNetworkImage(
+                                  imageUrl: TVDB_API_IMAGES +
+                                      (args.image != null
+                                          ? args.image
+                                          : seriesDetails.images[0].fileName),
+                                  placeholder: (context, url) =>
+                                      new CircularProgressIndicator(),
+                                  errorWidget: (context, url, error) =>
+                                      new Icon(Icons.error),
+                                ),
                               ),
                             ),
-                          ),
-                          Expanded(
-                            child: Container(
-                              padding: const EdgeInsets.only(left: 8.0),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                mainAxisAlignment: MainAxisAlignment.start,
-                                children: <Widget>[
-                                  Text(
-                                    args.name,
-                                    style: Theme.of(context).textTheme.headline,
-                                  ),
-                                  Text(
-                                    'Airs every ${seriesDetails.series.airsDayOfWeek} at ${seriesDetails.series.airsTime}',
-                                    style: Theme.of(context).textTheme.subhead,
-                                  ),
-                                  Text(
-                                    seriesDetails.series.network,
-                                    style: Theme.of(context).textTheme.subhead,
-                                  ),
-                                ],
+                            Expanded(
+                              child: Container(
+                                padding: const EdgeInsets.only(left: 8.0),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  mainAxisAlignment: MainAxisAlignment.start,
+                                  children: <Widget>[
+                                    Text(
+                                      args.name,
+                                      style:
+                                          Theme.of(context).textTheme.headline,
+                                    ),
+                                    Text(
+                                      'Airs every ${seriesDetails.series.airsDayOfWeek} at ${seriesDetails.series.airsTime}',
+                                      style:
+                                          Theme.of(context).textTheme.subhead,
+                                    ),
+                                    Text(
+                                      seriesDetails.series.network,
+                                      style:
+                                          Theme.of(context).textTheme.subhead,
+                                    ),
+                                  ],
+                                ),
                               ),
                             ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    Container(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Text(
-                        seriesDetails.series.overview,
-                        style: TextStyle(
-                          color: Colors.white,
+                          ],
                         ),
-                        softWrap: true,
                       ),
-                    ),
-                    Text(
-                      'Cast',
-                      textAlign: TextAlign.left,
-                      style: Theme.of(context).textTheme.headline,
-                    ),
-                    Divider(
-                      color: Colors.white,
-                    ),
-                    Expanded(
-                      child: CustomScrollView(
-                        scrollDirection: Axis.vertical,
-                        shrinkWrap: true,
-                        slivers: <Widget>[
-                          SliverPadding(
-                            padding: const EdgeInsets.all(8.0),
-                            sliver: SliverList(
-                              delegate: SliverChildBuilderDelegate(
-                                (context, index) => ActorCard(
-                                    actor: seriesDetails.actors[index]),
-                                childCount: seriesDetails.actors.length,
-                              ),
-                            ),
+                      Container(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Text(
+                          seriesDetails.series.overview,
+                          style: TextStyle(
+                            color: Colors.white,
                           ),
-                        ],
+                          softWrap: true,
+                        ),
                       ),
-                    )
-                  ],
-                ),
+                      Text(
+                        'Cast',
+                        textAlign: TextAlign.left,
+                        style: Theme.of(context).textTheme.headline,
+                      ),
+                      Divider(
+                        color: Colors.white,
+                      ),
+                      Container(
+                        height: 170,
+                        child: ListView.builder(
+                          scrollDirection: Axis.horizontal,
+                          itemCount: seriesDetails.actors.length,
+                          itemBuilder: (BuildContext context, int index) {
+                            return Container(
+                              width: 100.0,
+                              child:
+                                  ActorCard(actor: seriesDetails.actors[index]),
+                            );
+                          },
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
               );
             }
+            return Container();
           },
         ),
       ),

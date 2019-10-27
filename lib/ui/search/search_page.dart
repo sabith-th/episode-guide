@@ -23,7 +23,9 @@ class _SearchSeriesScreenState extends State<SearchSeriesScreen> {
       appBar: AppBar(
         title: Text('Search Series'),
       ),
+      backgroundColor: Colors.black,
       body: Container(
+        color: Colors.white,
         child: Column(
           children: <Widget>[
             Form(
@@ -57,6 +59,7 @@ class _SearchSeriesScreenState extends State<SearchSeriesScreen> {
             ),
             Expanded(
               child: Container(
+                color: Colors.black,
                 child: BlocBuilder(
                   bloc: _searchSeriesBloc,
                   builder: (_, SearchSeriesState state) {
@@ -109,6 +112,8 @@ class _SearchSeriesScreenState extends State<SearchSeriesScreen> {
                         ),
                       );
                     }
+
+                    return Container();
                   },
                 ),
               ),

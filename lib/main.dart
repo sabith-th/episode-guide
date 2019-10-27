@@ -21,7 +21,7 @@ void main() {
   final HttpLink _httpLink = HttpLink(uri: TVDB_GRAPHQL_API);
 
   final GraphQLClient _client =
-      GraphQLClient(link: _httpLink, cache: InMemoryCache());
+      GraphQLClient(link: _httpLink as Link, cache: InMemoryCache());
 
   final TvdbRepository tvdbRepository =
       TvdbRepository(tvdbGraphQLClient: TvdbGraphQLClient(client: _client));
@@ -67,6 +67,7 @@ class _MyAppState extends State<MyApp> {
         ],
         child: MaterialApp(
           title: 'Episode Guide',
+          debugShowCheckedModeBanner: false,
           theme: ThemeData(
             primaryColorDark: Colors.grey[900],
             primaryColorLight: Colors.grey[500],
