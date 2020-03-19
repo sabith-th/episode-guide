@@ -23,15 +23,11 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    final NextEpisodesBloc _nextEpisodesBloc =
-        BlocProvider.of<NextEpisodesBloc>(context);
-    final FavoritesBloc _favoritesBloc =
-        BlocProvider.of<FavoritesBloc>(context);
     return Scaffold(
       appBar: AppBar(
         title: Text(
           'Episode Guide',
-          style: Theme.of(context).textTheme.headline,
+          style: Theme.of(context).textTheme.headline5,
         ),
         actions: <Widget>[
           IconButton(
@@ -43,9 +39,9 @@ class _HomePageState extends State<HomePage> {
           IconButton(
             icon: Icon(Icons.refresh),
             onPressed: () {
-              _favoritesBloc.dispatch(FetchFavorites());
+              BlocProvider.of<FavoritesBloc>(context).add(FetchFavorites());
             },
-          )
+          ),
         ],
       ),
       backgroundColor: Colors.black,
@@ -54,14 +50,13 @@ class _HomePageState extends State<HomePage> {
           children: <Widget>[
             Expanded(
               child: Container(
-                child: BlocBuilder(
-                  bloc: _nextEpisodesBloc,
+                child: BlocBuilder<NextEpisodesBloc, NextEpisodeState>(
                   builder: (_, NextEpisodeState state) {
                     if (state is NextEpisodeEmpty) {
                       return Center(
                         child: Text(
                           'No new episodes',
-                          style: Theme.of(context).textTheme.subhead,
+                          style: Theme.of(context).textTheme.subtitle1,
                         ),
                       );
                     }
@@ -102,6 +97,13 @@ class _HomePageState extends State<HomePage> {
                         ),
                       );
                     }
+
+                    return Center(
+                      child: Text(
+                        'No new episodes',
+                        style: Theme.of(context).textTheme.subtitle1,
+                      ),
+                    );
                   },
                 ),
               ),

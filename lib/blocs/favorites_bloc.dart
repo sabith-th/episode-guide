@@ -4,7 +4,10 @@ import 'package:equatable/equatable.dart';
 import 'package:meta/meta.dart';
 
 abstract class FavoritesEvent extends Equatable {
-  FavoritesEvent([List props = const []]) : super(props);
+  const FavoritesEvent();
+
+  @override
+  List<Object> get props => [];
 }
 
 class FetchFavorites extends FavoritesEvent {}
@@ -12,21 +15,26 @@ class FetchFavorites extends FavoritesEvent {}
 class AddFavorite extends FavoritesEvent {
   final int seriesId;
 
-  AddFavorite({@required this.seriesId})
-      : assert(seriesId != null),
-        super([seriesId]);
+  const AddFavorite({@required this.seriesId});
+
+  @override
+  List<Object> get props => [seriesId];
 }
 
 class RemoveFavorite extends FavoritesEvent {
   final int seriesId;
 
-  RemoveFavorite({@required this.seriesId})
-      : assert(seriesId != null),
-        super([seriesId]);
+  const RemoveFavorite({@required this.seriesId});
+
+  @override
+  List<Object> get props => [seriesId];
 }
 
 abstract class FavoritesState extends Equatable {
-  FavoritesState([List props = const []]) : super(props);
+  const FavoritesState();
+
+  @override
+  List<Object> get props => [];
 }
 
 class FavoritesEmpty extends FavoritesState {}
@@ -36,7 +44,10 @@ class FavoritesLoading extends FavoritesState {}
 class FavoritesLoaded extends FavoritesState {
   final List<int> seriesIds;
 
-  FavoritesLoaded({@required this.seriesIds}) : super([seriesIds]);
+  const FavoritesLoaded({@required this.seriesIds});
+
+  @override
+  List<Object> get props => [seriesIds];
 }
 
 class FavoritesError extends FavoritesState {}
@@ -49,6 +60,8 @@ class FavoritesBloc extends Bloc<FavoritesEvent, FavoritesState> {
 
   @override
   Stream<FavoritesState> mapEventToState(FavoritesEvent event) async* {
+    final currentState = state;
+
     if (event is FetchFavorites) {
       yield FavoritesLoading();
       try {
@@ -65,9 +78,8 @@ class FavoritesBloc extends Bloc<FavoritesEvent, FavoritesState> {
       }
     } else if (event is AddFavorite) {
       if (currentState is FavoritesLoaded) {
-        final List<int> updatedSeriesIds =
-            List.from((currentState as FavoritesLoaded).seriesIds)
-              ..add(event.seriesId);
+        final List<int> updatedSeriesIds = List.from(currentState.seriesIds)
+          ..add(event.seriesId);
         yield FavoritesLoaded(seriesIds: updatedSeriesIds);
         FavoritesRepository.addFavoriteSeries(event.seriesId);
       } else if (currentState is FavoritesEmpty) {
@@ -77,10 +89,8 @@ class FavoritesBloc extends Bloc<FavoritesEvent, FavoritesState> {
       }
     } else if (event is RemoveFavorite) {
       if (currentState is FavoritesLoaded) {
-        final updatedSeriesIds = (currentState as FavoritesLoaded)
-            .seriesIds
-            .where((id) => id != event.seriesId)
-            .toList();
+        final updatedSeriesIds =
+            currentState.seriesIds.where((id) => id != event.seriesId).toList();
         yield FavoritesLoaded(seriesIds: updatedSeriesIds);
         FavoritesRepository.removeFavoriteSeries(event.seriesId);
       }

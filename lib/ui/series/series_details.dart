@@ -76,9 +76,9 @@ class SeriesDetailsScreen extends StatelessWidget {
           return FloatingActionButton(
             onPressed: () {
               if (isFavorite) {
-                _favoritesBloc.dispatch(RemoveFavorite(seriesId: args.id));
+                _favoritesBloc.add(RemoveFavorite(seriesId: args.id));
               } else {
-                _favoritesBloc.dispatch(AddFavorite(seriesId: args.id));
+                _favoritesBloc.add(AddFavorite(seriesId: args.id));
               }
             },
             foregroundColor: Colors.green,

@@ -18,7 +18,7 @@ class SearchResultCard extends StatelessWidget {
       child: InkWell(
         splashColor: Colors.black.withAlpha(30),
         onTap: () {
-          _seriesDetailsBloc.dispatch(FetchSeriesDetails(id: searchSeries.id));
+          _seriesDetailsBloc.add(FetchSeriesDetails(id: searchSeries.id));
           Navigator.pushNamed(
             context,
             SeriesDetailsScreen.routeName,

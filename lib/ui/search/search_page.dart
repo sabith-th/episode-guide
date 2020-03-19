@@ -16,9 +16,6 @@ class _SearchSeriesScreenState extends State<SearchSeriesScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final SearchSeriesBloc _searchSeriesBloc =
-        BlocProvider.of<SearchSeriesBloc>(context);
-
     return Scaffold(
       appBar: AppBar(
         title: Text('Search Series'),
@@ -50,8 +47,8 @@ class _SearchSeriesScreenState extends State<SearchSeriesScreen> {
                   IconButton(
                     icon: Icon(Icons.search),
                     onPressed: () {
-                      _searchSeriesBloc.dispatch(
-                          FetchSearchSeries(name: _textController.text));
+                      BlocProvider.of<SearchSeriesBloc>(context)
+                          .add(FetchSearchSeries(name: _textController.text));
                     },
                   ),
                 ],
@@ -60,8 +57,7 @@ class _SearchSeriesScreenState extends State<SearchSeriesScreen> {
             Expanded(
               child: Container(
                 color: Colors.black,
-                child: BlocBuilder(
-                  bloc: _searchSeriesBloc,
+                child: BlocBuilder<SearchSeriesBloc, SearchSeriesState>(
                   builder: (_, SearchSeriesState state) {
                     if (state is SearchSeriesLoading) {
                       return Center(

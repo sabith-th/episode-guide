@@ -16,14 +16,14 @@ class EpisodeCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    SeriesDetailsBloc _seriesDetailsBloc = BlocProvider.of<SeriesDetailsBloc>(context);
     Episode nextEpisode = episode.episodesSummary.nextEpisode;
 
     return Card(
       child: InkWell(
         splashColor: Colors.black.withAlpha(30),
         onTap: () {
-          _seriesDetailsBloc.dispatch(FetchSeriesDetails(id: episode.series.id));
+          BlocProvider.of<SeriesDetailsBloc>(context)
+              .add(FetchSeriesDetails(id: episode.series.id));
           Navigator.pushNamed(
             context,
             SeriesDetailsScreen.routeName,
@@ -64,21 +64,21 @@ class EpisodeCard extends StatelessWidget {
                           episode.series.seriesName,
                           style: Theme.of(context)
                               .textTheme
-                              .headline
+                              .headline5
                               .copyWith(color: Colors.black),
                         ),
                         Text(
                           'S${nextEpisode.airedSeason} E${nextEpisode.airedEpisodeNumber} - ${nextEpisode.episodeName}',
                           style: Theme.of(context)
                               .textTheme
-                              .subhead
+                              .subtitle1
                               .copyWith(color: Colors.black),
                         ),
                         Text(
                           'Airs: ${nextEpisode.firstAired}',
                           style: Theme.of(context)
                               .textTheme
-                              .subhead
+                              .subtitle1
                               .copyWith(color: Colors.black),
                         ),
                       ],

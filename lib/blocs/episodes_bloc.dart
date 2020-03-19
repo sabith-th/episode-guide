@@ -8,23 +8,29 @@ import 'package:equatable/equatable.dart';
 import 'package:meta/meta.dart';
 
 abstract class NextEpisodeEvent extends Equatable {
-  NextEpisodeEvent([List props = const []]) : super(props);
+  const NextEpisodeEvent();
+
+  @override
+  List<Object> get props => [];
 }
 
 class FetchNextEpisode extends NextEpisodeEvent {
   final List<int> ids;
 
-  FetchNextEpisode({@required this.ids}) : super([ids]);
+  const FetchNextEpisode({@required this.ids});
 }
 
 class RefreshNextEpisode extends NextEpisodeEvent {
   final List<int> ids;
 
-  RefreshNextEpisode({@required this.ids}) : super([ids]);
+  const RefreshNextEpisode({@required this.ids});
 }
 
 abstract class NextEpisodeState extends Equatable {
-  NextEpisodeState([List props = const []]) : super(props);
+  const NextEpisodeState();
+
+  @override
+  List<Object> get props => [];
 }
 
 class NextEpisodeEmpty extends NextEpisodeState {}
@@ -36,7 +42,7 @@ class NextEpisodeError extends NextEpisodeState {}
 class NextEpisodeLoaded extends NextEpisodeState {
   final List<NextEpisode> nextEpisodes;
 
-  NextEpisodeLoaded({@required this.nextEpisodes}) : super([nextEpisodes]);
+  const NextEpisodeLoaded({@required this.nextEpisodes});
 }
 
 class NextEpisodesBloc extends Bloc<NextEpisodeEvent, NextEpisodeState> {
@@ -45,10 +51,10 @@ class NextEpisodesBloc extends Bloc<NextEpisodeEvent, NextEpisodeState> {
   StreamSubscription favoritesSubscription;
 
   NextEpisodesBloc({this.favoritesBloc, @required this.tvdbRepository}) {
-    favoritesSubscription = favoritesBloc.state.listen((state) {
+    favoritesSubscription = favoritesBloc.listen((state) {
       if (state is FavoritesLoaded) {
-        dispatch(FetchNextEpisode(
-            ids: (favoritesBloc.currentState as FavoritesLoaded).seriesIds));
+        add(FetchNextEpisode(
+            ids: (favoritesBloc.state as FavoritesLoaded).seriesIds));
       }
     });
   }
@@ -58,6 +64,8 @@ class NextEpisodesBloc extends Bloc<NextEpisodeEvent, NextEpisodeState> {
 
   @override
   Stream<NextEpisodeState> mapEventToState(NextEpisodeEvent event) async* {
+    final currentState = state;
+
     if (event is FetchNextEpisode) {
       yield NextEpisodeLoading();
       try {
@@ -83,10 +91,8 @@ class NextEpisodesBloc extends Bloc<NextEpisodeEvent, NextEpisodeState> {
   }
 
   @override
-  void dispose() {
+  Future<Function> close() {
     favoritesSubscription.cancel();
-    super.dispose();
+    return super.close();
   }
-
-
 }

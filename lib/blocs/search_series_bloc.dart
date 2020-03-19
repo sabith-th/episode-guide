@@ -5,17 +5,26 @@ import 'package:equatable/equatable.dart';
 import 'package:meta/meta.dart';
 
 abstract class SearchSeriesEvent extends Equatable {
-  SearchSeriesEvent([List props = const []]) : super(props);
+  const SearchSeriesEvent();
+
+  @override
+  List<Object> get props => [];
 }
 
 class FetchSearchSeries extends SearchSeriesEvent {
   final String name;
 
-  FetchSearchSeries({@required this.name}) : super([name]);
+  FetchSearchSeries({@required this.name});
+
+  @override
+  List<Object> get props => [name];
 }
 
 abstract class SearchSeriesState extends Equatable {
-  SearchSeriesState([List props = const []]) : super(props);
+  const SearchSeriesState();
+
+  @override
+  List<Object> get props => [];
 }
 
 class SearchSeriesEmpty extends SearchSeriesState {}
@@ -27,8 +36,10 @@ class SearchSeriesError extends SearchSeriesState {}
 class SearchSeriesLoaded extends SearchSeriesState {
   final SearchSeriesResult searchSeriesResult;
 
-  SearchSeriesLoaded({@required this.searchSeriesResult})
-      : super([searchSeriesResult]);
+  const SearchSeriesLoaded({@required this.searchSeriesResult});
+
+  @override
+  List<Object> get props => [searchSeriesResult];
 }
 
 class SearchSeriesBloc extends Bloc<SearchSeriesEvent, SearchSeriesState> {

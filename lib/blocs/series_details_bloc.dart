@@ -5,17 +5,23 @@ import 'package:equatable/equatable.dart';
 import 'package:meta/meta.dart';
 
 abstract class SeriesDetailsEvent extends Equatable {
-  SeriesDetailsEvent([List props = const []]) : super(props);
+  const SeriesDetailsEvent();
 }
 
 class FetchSeriesDetails extends SeriesDetailsEvent {
   final int id;
 
-  FetchSeriesDetails({@required this.id}) : super([id]);
+  const FetchSeriesDetails({@required this.id});
+
+  @override
+  List<Object> get props => [id];
 }
 
 abstract class SeriesDetailsState extends Equatable {
-  SeriesDetailsState([List props = const []]) : super(props);
+  const SeriesDetailsState();
+
+  @override
+  List<Object> get props => [];
 }
 
 class SeriesDetailsEmpty extends SeriesDetailsState {}
@@ -27,7 +33,10 @@ class SeriesDetailsError extends SeriesDetailsState {}
 class SeriesDetailsLoaded extends SeriesDetailsState {
   final SeriesDetails seriesDetails;
 
-  SeriesDetailsLoaded({@required this.seriesDetails}) : super([seriesDetails]);
+  SeriesDetailsLoaded({@required this.seriesDetails});
+
+  @override
+  List<Object> get props => [seriesDetails];
 }
 
 class SeriesDetailsBloc extends Bloc<SeriesDetailsEvent, SeriesDetailsState> {
