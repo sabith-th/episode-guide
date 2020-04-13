@@ -73,7 +73,7 @@ class _SearchSeriesScreenState extends State<SearchSeriesScreen> {
                           'No results found',
                           style: Theme.of(context)
                               .textTheme
-                              .subhead
+                              .subtitle1
                               .copyWith(color: Colors.black),
                         ),
                       );

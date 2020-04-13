@@ -146,17 +146,17 @@ class SeriesDetailsScreen extends StatelessWidget {
                                     Text(
                                       args.name,
                                       style:
-                                          Theme.of(context).textTheme.headline,
+                                          Theme.of(context).textTheme.headline5,
                                     ),
                                     Text(
                                       'Airs every ${seriesDetails.series.airsDayOfWeek} at ${seriesDetails.series.airsTime}',
                                       style:
-                                          Theme.of(context).textTheme.subhead,
+                                          Theme.of(context).textTheme.subtitle1,
                                     ),
                                     Text(
                                       seriesDetails.series.network,
                                       style:
-                                          Theme.of(context).textTheme.subhead,
+                                          Theme.of(context).textTheme.subtitle1,
                                     ),
                                   ],
                                 ),
@@ -178,7 +178,7 @@ class SeriesDetailsScreen extends StatelessWidget {
                       Text(
                         'Cast',
                         textAlign: TextAlign.left,
-                        style: Theme.of(context).textTheme.headline,
+                        style: Theme.of(context).textTheme.headline5,
                       ),
                       Divider(
                         color: Colors.white,

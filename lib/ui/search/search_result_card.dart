@@ -39,14 +39,14 @@ class SearchResultCard extends StatelessWidget {
                 searchSeries.seriesName,
                 style: Theme.of(context)
                     .textTheme
-                    .headline
+                    .headline5
                     .copyWith(color: Colors.black),
               ),
               Text(
                 'Network: ${searchSeries.network}',
                 style: Theme.of(context)
                     .textTheme
-                    .subhead
+                    .subtitle1
                     .copyWith(color: Colors.black),
               ),
               Row(
