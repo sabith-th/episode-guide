@@ -14,7 +14,7 @@ class TvdbGraphQLClient {
   Future<NextEpisode> getNextEpisode(int id) async {
     QueryResult result = await client.query(
       QueryOptions(
-        document: queries.getNextEpisode,
+        documentNode: gql(queries.getNextEpisode),
         variables: <String, dynamic>{
           'id': id,
           'keyType': 'POSTER',
@@ -31,7 +31,7 @@ class TvdbGraphQLClient {
   Future<SeriesDetails> getSeriesDetails(int id) async {
     QueryResult result = await client.query(
       QueryOptions(
-        document: queries.getSeriesDetails,
+        documentNode: gql(queries.getSeriesDetails),
         variables: <String, dynamic>{
           'id': id,
           'keyType': 'POSTER',
@@ -45,7 +45,7 @@ class TvdbGraphQLClient {
   Future<SearchSeriesResult> searchSeries(String name) async {
     QueryResult result = await client.query(
       QueryOptions(
-        document: queries.searchSeries,
+        documentNode: gql(queries.searchSeries),
         variables: <String, dynamic>{
           'name': name,
         },
