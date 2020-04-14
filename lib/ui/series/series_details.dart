@@ -57,8 +57,10 @@ class SeriesDetailsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final SeriesDetailsArgs args = ModalRoute.of(context).settings.arguments;
+    //ignore: close_sinks
     final SeriesDetailsBloc _seriesDetailsBloc =
         BlocProvider.of<SeriesDetailsBloc>(context);
+    //ignore: close_sinks
     final FavoritesBloc _favoritesBloc =
         BlocProvider.of<FavoritesBloc>(context);
     return Scaffold(

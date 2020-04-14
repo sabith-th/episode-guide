@@ -11,6 +11,7 @@ class SearchResultCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    //ignore: close_sinks
     SeriesDetailsBloc _seriesDetailsBloc =
         BlocProvider.of<SeriesDetailsBloc>(context);
 
