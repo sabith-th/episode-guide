@@ -17,11 +17,11 @@ class EpisodeCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final Episode? nextEpisode = episode.nextEpisode;
     final String? imageUrl = episode.series.image;
+    final theme = Theme.of(context);
 
     return Card(
-      color: Colors.white,
       child: InkWell(
-        splashColor: Colors.black.withAlpha(30),
+        borderRadius: BorderRadius.circular(12),
         onTap: () {
           BlocProvider.of<SeriesDetailsBloc>(context)
               .add(FetchSeriesDetails(id: episode.series.id));
@@ -35,73 +35,88 @@ class EpisodeCard extends StatelessWidget {
             ),
           );
         },
-        child: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: IntrinsicHeight(
-            child: Row(
-              children: <Widget>[
-                Hero(
-                  tag: 'seriesImage-${episode.series.id}',
-                  child: SizedBox(
-                    height: 110,
-                    width: 75,
-                    child: imageUrl != null
-                        ? CachedNetworkImage(
-                            imageUrl: imageUrl,
-                            progressIndicatorBuilder: (context, url, progress) =>
-                                const CircularProgressIndicator(),
-                            errorWidget: (context, url, error) =>
-                                const Icon(Icons.error),
-                          )
-                        : const Icon(Icons.tv, size: 48),
-                  ),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: <Widget>[
+            Hero(
+              tag: 'seriesImage-${episode.series.id}',
+              child: ClipRRect(
+                borderRadius: const BorderRadius.only(
+                  topLeft: Radius.circular(12),
+                  bottomLeft: Radius.circular(12),
                 ),
-                Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.only(left: 8.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      children: <Widget>[
-                        Text(
-                          episode.series.seriesName,
-                          style: Theme.of(context)
-                              .textTheme
-                              .headlineMedium!
-                              .copyWith(color: Colors.black),
+                child: SizedBox(
+                  height: 130,
+                  width: 88,
+                  child: imageUrl != null
+                      ? CachedNetworkImage(
+                          imageUrl: imageUrl,
+                          fit: BoxFit.cover,
+                          progressIndicatorBuilder:
+                              (context, url, progress) => Container(
+                            color: const Color(0xFF2A2A2A),
+                            child: const Center(
+                              child: CircularProgressIndicator(strokeWidth: 2),
+                            ),
+                          ),
+                          errorWidget: (context, url, error) => Container(
+                            color: const Color(0xFF2A2A2A),
+                            child: const Icon(Icons.tv,
+                                size: 36, color: Colors.white30),
+                          ),
+                        )
+                      : Container(
+                          color: const Color(0xFF2A2A2A),
+                          child: const Icon(Icons.tv,
+                              size: 36, color: Colors.white30),
                         ),
-                        if (nextEpisode != null) ...[
-                          Text(
-                            nextEpisode.seasonNumber != null
-                                ? 'Season ${nextEpisode.seasonNumber} - ${nextEpisode.episodeName ?? ''}'
-                                : nextEpisode.episodeName ?? '',
-                            style: Theme.of(context)
-                                .textTheme
-                                .titleMedium!
-                                .copyWith(color: Colors.black),
-                          ),
-                          Text(
-                            'Airs: ${nextEpisode.firstAired ?? 'TBA'}',
-                            style: Theme.of(context)
-                                .textTheme
-                                .titleMedium!
-                                .copyWith(color: Colors.black),
-                          ),
-                        ] else
-                          Text(
-                            'No upcoming episodes',
-                            style: Theme.of(context)
-                                .textTheme
-                                .titleMedium!
-                                .copyWith(color: Colors.grey),
-                          ),
-                      ],
-                    ),
-                  ),
                 ),
-              ],
+              ),
             ),
-          ),
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(14, 14, 12, 14),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: <Widget>[
+                    Text(
+                      episode.series.seriesName,
+                      style: theme.textTheme.headlineMedium,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    const SizedBox(height: 6),
+                    if (nextEpisode != null) ...[
+                      Text(
+                        nextEpisode.seasonNumber != null
+                            ? 'S${nextEpisode.seasonNumber} · ${nextEpisode.episodeName ?? 'Episode'}'
+                            : nextEpisode.episodeName ?? '',
+                        style: theme.textTheme.titleMedium,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      const SizedBox(height: 4),
+                      Row(
+                        children: [
+                          const Icon(Icons.calendar_today,
+                              size: 13, color: Colors.white38),
+                          const SizedBox(width: 4),
+                          Text(
+                            nextEpisode.firstAired ?? 'TBA',
+                            style: theme.textTheme.bodyMedium,
+                          ),
+                        ],
+                      ),
+                    ] else
+                      Text(
+                        'No upcoming episodes',
+                        style: theme.textTheme.bodyMedium,
+                      ),
+                  ],
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );

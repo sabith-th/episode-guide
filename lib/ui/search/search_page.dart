@@ -30,111 +30,90 @@ class _SearchSeriesScreenState extends State<SearchSeriesScreen> {
     super.dispose();
   }
 
+  void _search() {
+    BlocProvider.of<SearchSeriesBloc>(context)
+        .add(FetchSearchSeries(name: _textController.text));
+  }
+
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Search Series'),
-      ),
-      backgroundColor: Colors.black,
-      body: Column(
-        children: <Widget>[
-          Theme(
-            data: ThemeData.light(),
-            child: Container(
-            color: Colors.white,
-            child: Form(
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Expanded(
-                    child: Padding(
-                      padding: const EdgeInsets.only(left: 10.0),
-                      child: TextFormField(
-                        controller: _textController,
-                        decoration: const InputDecoration(
-                          labelText: 'Series',
-                          hintText: 'Type in the title of the series',
-                        ),
-                        style: const TextStyle(
-                          color: Colors.black,
-                        ),
-                      ),
-                    ),
-                  ),
-                  IconButton(
-                    icon: const Icon(Icons.search),
-                    onPressed: () {
-                      BlocProvider.of<SearchSeriesBloc>(context)
-                          .add(FetchSearchSeries(name: _textController.text));
-                    },
-                  ),
-                ],
-              ),
-            ),
-            ),
+        titleSpacing: 0,
+        title: TextField(
+          controller: _textController,
+          autofocus: true,
+          style: const TextStyle(color: Colors.white, fontSize: 19),
+          textInputAction: TextInputAction.search,
+          onSubmitted: (_) => _search(),
+          decoration: const InputDecoration(
+            hintText: 'Search for a series...',
+            hintStyle: TextStyle(color: Colors.white38),
+            border: InputBorder.none,
+            contentPadding: EdgeInsets.zero,
           ),
-          Expanded(
-            child: Container(
-              color: Colors.black,
-              child: BlocBuilder<SearchSeriesBloc, SearchSeriesState>(
-                builder: (_, SearchSeriesState state) {
-                  if (state is SearchSeriesLoading) {
-                    return const Center(
-                      child: CircularProgressIndicator(
-                        backgroundColor: Colors.black,
-                      ),
-                    );
-                  }
-
-                  if (state is SearchSeriesEmpty) {
-                    return Center(
-                      child: Text(
-                        'No results found',
-                        style: Theme.of(context)
-                            .textTheme
-                            .titleMedium!
-                            .copyWith(color: Colors.white),
-                      ),
-                    );
-                  }
-
-                  if (state is SearchSeriesLoaded) {
-                    final List<SearchSeries> series =
-                        state.searchSeriesResult.searchSeries;
-                    return CustomScrollView(
-                      scrollDirection: Axis.vertical,
-                      shrinkWrap: true,
-                      slivers: <Widget>[
-                        SliverPadding(
-                          padding: const EdgeInsets.symmetric(vertical: 12.0),
-                          sliver: SliverList(
-                            delegate: SliverChildBuilderDelegate(
-                              (context, index) => SearchResultCard(
-                                  searchSeries: series[index]),
-                              childCount: series.length,
-                            ),
-                          ),
-                        )
-                      ],
-                    );
-                  }
-
-                  if (state is SearchSeriesError) {
-                    return const Center(
-                      child: Text(
-                        'Something went wrong! Please refresh',
-                        style: TextStyle(color: Colors.red),
-                      ),
-                    );
-                  }
-
-                  return const SizedBox.shrink();
-                },
-              ),
-            ),
+        ),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.search),
+            onPressed: _search,
           ),
         ],
+      ),
+      body: BlocBuilder<SearchSeriesBloc, SearchSeriesState>(
+        builder: (_, SearchSeriesState state) {
+          if (state is SearchSeriesLoading) {
+            return const Center(child: CircularProgressIndicator());
+          }
+
+          if (state is SearchSeriesEmpty) {
+            return Center(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Icon(Icons.search_off, size: 56, color: Colors.white24),
+                  const SizedBox(height: 12),
+                  Text('No results found', style: theme.textTheme.titleMedium),
+                ],
+              ),
+            );
+          }
+
+          if (state is SearchSeriesLoaded) {
+            final List<SearchSeries> series =
+                state.searchSeriesResult.searchSeries;
+            return ListView.builder(
+              padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
+              itemCount: series.length,
+              itemBuilder: (context, index) => Padding(
+                padding: const EdgeInsets.only(bottom: 10),
+                child: SearchResultCard(searchSeries: series[index]),
+              ),
+            );
+          }
+
+          if (state is SearchSeriesError) {
+            return const Center(
+              child: Text(
+                'Something went wrong! Please try again',
+                style: TextStyle(color: Colors.red),
+              ),
+            );
+          }
+
+          return Center(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Icon(Icons.tv, size: 64, color: Colors.white12),
+                const SizedBox(height: 12),
+                Text('Search for a series above',
+                    style: theme.textTheme.titleMedium),
+              ],
+            ),
+          );
+        },
       ),
     );
   }

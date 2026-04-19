@@ -25,10 +25,7 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(
-          'Episode Guide',
-          style: Theme.of(context).textTheme.headlineMedium,
-        ),
+        title: const Text('Episode Guide'),
         actions: <Widget>[
           IconButton(
             icon: const Icon(Icons.search),
@@ -44,16 +41,10 @@ class _HomePageState extends State<HomePage> {
           ),
         ],
       ),
-      backgroundColor: Colors.black,
       body: BlocBuilder<NextEpisodesBloc, NextEpisodeState>(
         builder: (_, NextEpisodeState state) {
           if (state is NextEpisodeEmpty) {
-            return Center(
-              child: Text(
-                'No new episodes',
-                style: Theme.of(context).textTheme.titleMedium,
-              ),
-            );
+            return _buildEmptyState(context, 'No favorites yet — search for a series to add one');
           }
 
           if (state is NextEpisodeLoading) {
@@ -64,28 +55,32 @@ class _HomePageState extends State<HomePage> {
             final List<NextEpisode> episodes = state.nextEpisodes;
 
             if (episodes.isEmpty) {
-              return Center(
-                child: Text(
-                  'No upcoming episodes',
-                  style: Theme.of(context).textTheme.titleMedium,
-                ),
-              );
+              return _buildEmptyState(context, 'No upcoming episodes');
             }
 
             return CustomScrollView(
-              scrollDirection: Axis.vertical,
-              shrinkWrap: true,
               slivers: <Widget>[
                 SliverPadding(
-                  padding: const EdgeInsets.symmetric(vertical: 12.0),
+                  padding: const EdgeInsets.fromLTRB(16, 20, 16, 8),
+                  sliver: SliverToBoxAdapter(
+                    child: Text(
+                      'Up Next',
+                      style: Theme.of(context).textTheme.headlineLarge,
+                    ),
+                  ),
+                ),
+                SliverPadding(
+                  padding: const EdgeInsets.fromLTRB(12, 4, 12, 24),
                   sliver: SliverList(
                     delegate: SliverChildBuilderDelegate(
-                      (context, index) =>
-                          EpisodeCard(episode: episodes[index]),
+                      (context, index) => Padding(
+                        padding: const EdgeInsets.only(bottom: 12),
+                        child: EpisodeCard(episode: episodes[index]),
+                      ),
                       childCount: episodes.length,
                     ),
                   ),
-                )
+                ),
               ],
             );
           }
@@ -99,13 +94,25 @@ class _HomePageState extends State<HomePage> {
             );
           }
 
-          return Center(
-            child: Text(
-              'No new episodes',
-              style: Theme.of(context).textTheme.titleMedium,
-            ),
-          );
+          return _buildEmptyState(context, 'No new episodes');
         },
+      ),
+    );
+  }
+
+  Widget _buildEmptyState(BuildContext context, String message) {
+    return Center(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const Icon(Icons.tv_off, size: 64, color: Colors.white24),
+          const SizedBox(height: 16),
+          Text(
+            message,
+            style: Theme.of(context).textTheme.titleMedium,
+            textAlign: TextAlign.center,
+          ),
+        ],
       ),
     );
   }

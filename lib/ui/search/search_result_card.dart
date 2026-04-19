@@ -13,11 +13,11 @@ class SearchResultCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final SeriesDetailsBloc seriesDetailsBloc =
         BlocProvider.of<SeriesDetailsBloc>(context);
+    final theme = Theme.of(context);
 
     return Card(
-      color: Colors.white,
       child: InkWell(
-        splashColor: Colors.black.withAlpha(30),
+        borderRadius: BorderRadius.circular(12),
         onTap: () {
           seriesDetailsBloc.add(FetchSeriesDetails(id: searchSeries.id));
           Navigator.pushNamed(
@@ -31,36 +31,96 @@ class SearchResultCard extends StatelessWidget {
           );
         },
         child: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.start,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: <Widget>[
-              Text(
-                searchSeries.seriesName,
-                style: Theme.of(context)
-                    .textTheme
-                    .headlineMedium!
-                    .copyWith(color: Colors.black),
+          padding: const EdgeInsets.all(14),
+          child: Row(
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: <Widget>[
+                    Text(
+                      searchSeries.seriesName,
+                      style: theme.textTheme.headlineMedium,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    const SizedBox(height: 6),
+                    if (searchSeries.network != null)
+                      _MetaRow(
+                        icon: Icons.broadcast_on_home,
+                        label: searchSeries.network!,
+                      ),
+                    if (searchSeries.firstAired != null) ...[
+                      const SizedBox(height: 3),
+                      _MetaRow(
+                        icon: Icons.calendar_today,
+                        label: searchSeries.firstAired!,
+                      ),
+                    ],
+                  ],
+                ),
               ),
-              Text(
-                'Network: ${searchSeries.network}',
-                style: Theme.of(context)
-                    .textTheme
-                    .titleMedium!
-                    .copyWith(color: Colors.black),
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: <Widget>[
-                  Text('First Aired: ${searchSeries.firstAired}'),
-                  Text('Status: ${searchSeries.status}'),
-                ],
-              ),
+              if (searchSeries.status != null)
+                Container(
+                  margin: const EdgeInsets.only(left: 10),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: _statusColor(searchSeries.status!).withAlpha(40),
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(
+                      color: _statusColor(searchSeries.status!).withAlpha(120),
+                      width: 1,
+                    ),
+                  ),
+                  child: Text(
+                    searchSeries.status!,
+                    style: TextStyle(
+                      fontSize: 11,
+                      color: _statusColor(searchSeries.status!),
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
             ],
           ),
         ),
       ),
+    );
+  }
+
+  Color _statusColor(String status) {
+    switch (status.toLowerCase()) {
+      case 'continuing':
+        return Colors.greenAccent;
+      case 'ended':
+        return Colors.redAccent;
+      default:
+        return Colors.white54;
+    }
+  }
+}
+
+class _MetaRow extends StatelessWidget {
+  final IconData icon;
+  final String label;
+
+  const _MetaRow({required this.icon, required this.label});
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Icon(icon, size: 13, color: Colors.white38),
+        const SizedBox(width: 5),
+        Flexible(
+          child: Text(
+            label,
+            style: Theme.of(context).textTheme.bodyMedium,
+            overflow: TextOverflow.ellipsis,
+          ),
+        ),
+      ],
     );
   }
 }

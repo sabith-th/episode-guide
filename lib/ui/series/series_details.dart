@@ -26,134 +26,242 @@ class SeriesDetailsScreen extends StatelessWidget {
         BlocProvider.of<SeriesDetailsBloc>(context);
     final FavoritesBloc favoritesBloc =
         BlocProvider.of<FavoritesBloc>(context);
+
     return Scaffold(
+      extendBodyBehindAppBar: true,
       appBar: AppBar(
-        title: Text(args.name),
-      ),
-      backgroundColor: Colors.black,
-      floatingActionButton: BlocBuilder<FavoritesBloc, FavoritesState>(
-        bloc: favoritesBloc,
-        builder: (_, FavoritesState state) {
-          bool isFavorite = false;
-          if (state is FavoritesLoaded && state.seriesIds.contains(args.id)) {
-            isFavorite = true;
-          }
-          return FloatingActionButton(
-            onPressed: () {
-              if (isFavorite) {
-                favoritesBloc.add(RemoveFavorite(seriesId: args.id));
-              } else {
-                favoritesBloc.add(AddFavorite(seriesId: args.id));
-              }
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        iconTheme: const IconThemeData(color: Colors.white),
+        actions: [
+          BlocBuilder<FavoritesBloc, FavoritesState>(
+            bloc: favoritesBloc,
+            builder: (_, FavoritesState state) {
+              final isFavorite = state is FavoritesLoaded &&
+                  state.seriesIds.contains(args.id);
+              return IconButton(
+                icon: Icon(
+                  isFavorite ? Icons.star : Icons.star_border,
+                  color: isFavorite ? Colors.amber : Colors.white,
+                  size: 28,
+                ),
+                onPressed: () {
+                  if (isFavorite) {
+                    favoritesBloc.add(RemoveFavorite(seriesId: args.id));
+                  } else {
+                    favoritesBloc.add(AddFavorite(seriesId: args.id));
+                  }
+                },
+              );
             },
-            foregroundColor: Colors.green,
-            child: Icon(
-              isFavorite ? Icons.star : Icons.star_border,
-              size: 36,
-            ),
-          );
-        },
+          ),
+        ],
       ),
       body: BlocBuilder<SeriesDetailsBloc, SeriesDetailsState>(
-          bloc: seriesDetailsBloc,
-          builder: (_, SeriesDetailsState state) {
-            if (state is SeriesDetailsLoading) {
-              return const Center(child: CircularProgressIndicator());
-            }
+        bloc: seriesDetailsBloc,
+        builder: (_, SeriesDetailsState state) {
+          if (state is SeriesDetailsLoading) {
+            return const Center(child: CircularProgressIndicator());
+          }
 
-            if (state is SeriesDetailsError) {
-              return const Text(
+          if (state is SeriesDetailsError) {
+            return const Center(
+              child: Text(
                 'Something went wrong!',
                 style: TextStyle(color: Colors.red),
-              );
-            }
+              ),
+            );
+          }
 
-            if (state is SeriesDetailsLoaded) {
-              final SeriesDetails seriesDetails = state.seriesDetails;
-              final String? imageUrl =
-                  args.image ?? seriesDetails.series.image;
+          if (state is SeriesDetailsLoaded) {
+            final SeriesDetails seriesDetails = state.seriesDetails;
+            final String? imageUrl =
+                args.image ?? seriesDetails.series.image;
 
-              return ListView(
-                children: <Widget>[
-                  IntrinsicHeight(
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: <Widget>[
-                        Hero(
-                          tag: 'seriesImage-${args.id}',
-                          child: SizedBox(
-                            height: 165,
-                            width: 112.5,
-                            child: imageUrl != null
-                                ? CachedNetworkImage(
-                                    imageUrl: imageUrl,
-                                    progressIndicatorBuilder:
-                                        (context, url, progress) =>
-                                            const CircularProgressIndicator(),
-                                    errorWidget: (context, url, error) =>
-                                        const Icon(Icons.error),
-                                  )
-                                : const Icon(Icons.tv, size: 64),
-                          ),
-                        ),
-                        Expanded(
-                          child: Padding(
-                            padding: const EdgeInsets.only(left: 8.0),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              mainAxisAlignment: MainAxisAlignment.start,
-                              children: <Widget>[
-                                Text(
-                                  args.name,
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .headlineMedium,
-                                ),
-                                if (seriesDetails.series.firstAired != null)
-                                  Text(
-                                    'First aired: ${seriesDetails.series.firstAired}',
-                                    style: Theme.of(context)
-                                        .textTheme
-                                        .titleMedium,
-                                  ),
-                                if (seriesDetails.nextEpisode != null)
-                                  Text(
-                                    'Next: ${seriesDetails.nextEpisode!.firstAired ?? 'TBA'}',
-                                    style: Theme.of(context)
-                                        .textTheme
-                                        .titleMedium,
-                                  ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
+            return CustomScrollView(
+              slivers: [
+                SliverToBoxAdapter(
+                  child: _HeroHeader(
+                    imageUrl: imageUrl,
+                    seriesId: args.id,
+                    seriesName: args.name,
                   ),
-                  if (seriesDetails.series.overview != null)
-                    Container(
-                      padding: const EdgeInsets.all(8.0),
+                ),
+                SliverToBoxAdapter(
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+                    child: _InfoSection(seriesDetails: seriesDetails),
+                  ),
+                ),
+                if (seriesDetails.series.overview != null)
+                  SliverToBoxAdapter(
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
                       child: Text(
                         seriesDetails.series.overview!,
-                        style: const TextStyle(color: Colors.white),
+                        style: const TextStyle(
+                            color: Colors.white70, height: 1.5),
                         softWrap: true,
                       ),
                     ),
-                  _buildCastSection(context, seriesDetails.series.characters),
-                ],
-              );
-            }
-            return const SizedBox.shrink();
-          },
+                  ),
+                SliverToBoxAdapter(
+                  child: _CastSection(
+                    characters: seriesDetails.series.characters,
+                  ),
+                ),
+                const SliverToBoxAdapter(child: SizedBox(height: 32)),
+              ],
+            );
+          }
+
+          return const SizedBox.shrink();
+        },
+      ),
+    );
+  }
+}
+
+class _HeroHeader extends StatelessWidget {
+  final String? imageUrl;
+  final int seriesId;
+  final String seriesName;
+
+  const _HeroHeader({
+    required this.imageUrl,
+    required this.seriesId,
+    required this.seriesName,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Stack(
+      children: [
+        Hero(
+          tag: 'seriesImage-$seriesId',
+          child: SizedBox(
+            height: 280,
+            width: double.infinity,
+            child: imageUrl != null
+                ? CachedNetworkImage(
+                    imageUrl: imageUrl!,
+                    fit: BoxFit.cover,
+                    alignment: Alignment.topCenter,
+                    progressIndicatorBuilder: (context, url, progress) =>
+                        Container(color: const Color(0xFF1C1C1C)),
+                    errorWidget: (context, url, error) => _placeholder(),
+                  )
+                : _placeholder(),
+          ),
         ),
+        // top fade for AppBar overlap
+        Positioned(
+          top: 0, left: 0, right: 0,
+          child: Container(
+            height: 80,
+            decoration: const BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [Color(0xCC0D0D0D), Colors.transparent],
+              ),
+            ),
+          ),
+        ),
+        // bottom fade into background
+        Positioned(
+          bottom: 0, left: 0, right: 0,
+          child: Container(
+            height: 100,
+            decoration: const BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.bottomCenter,
+                end: Alignment.topCenter,
+                colors: [Color(0xFF0D0D0D), Colors.transparent],
+              ),
+            ),
+          ),
+        ),
+        // series name at bottom of header
+        Positioned(
+          bottom: 12, left: 16, right: 16,
+          child: Text(
+            seriesName,
+            style: const TextStyle(
+              fontSize: 26,
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
+              shadows: [Shadow(blurRadius: 8, color: Colors.black)],
+            ),
+          ),
+        ),
+      ],
     );
   }
 
-  Widget _buildCastSection(
-      BuildContext context, List<Character>? characters) {
-    if (characters == null || characters.isEmpty) return const SizedBox.shrink();
+  Widget _placeholder() => Container(
+        color: const Color(0xFF1C1C1C),
+        child: const Center(
+          child: Icon(Icons.tv, size: 80, color: Colors.white12),
+        ),
+      );
+}
 
-    final actors = characters
+class _InfoSection extends StatelessWidget {
+  final SeriesDetails seriesDetails;
+
+  const _InfoSection({required this.seriesDetails});
+
+  @override
+  Widget build(BuildContext context) {
+    final series = seriesDetails.series;
+    return Wrap(
+      spacing: 24,
+      runSpacing: 8,
+      children: [
+        if (series.firstAired != null)
+          _InfoChip(icon: Icons.calendar_today, label: 'First aired: ${series.firstAired!}'),
+        if (seriesDetails.nextEpisode != null)
+          _InfoChip(
+            icon: Icons.upcoming,
+            label: 'Next: ${seriesDetails.nextEpisode!.firstAired ?? 'TBA'}',
+          ),
+      ],
+    );
+  }
+}
+
+class _InfoChip extends StatelessWidget {
+  final IconData icon;
+  final String label;
+
+  const _InfoChip({required this.icon, required this.label});
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Icon(icon, size: 14, color: Colors.white38),
+        const SizedBox(width: 5),
+        Text(label, style: Theme.of(context).textTheme.bodyMedium),
+      ],
+    );
+  }
+}
+
+class _CastSection extends StatelessWidget {
+  final List<Character>? characters;
+
+  const _CastSection({required this.characters});
+
+  @override
+  Widget build(BuildContext context) {
+    if (characters == null || characters!.isEmpty) {
+      return const SizedBox.shrink();
+    }
+
+    final actors = characters!
         .where((c) => c.peopleType == 'Actor')
         .toList()
       ..sort((a, b) {
@@ -169,51 +277,60 @@ class SeriesDetailsScreen extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
-          padding: const EdgeInsets.fromLTRB(8.0, 12.0, 8.0, 4.0),
+          padding: const EdgeInsets.fromLTRB(16, 24, 16, 12),
           child: Text(
             'Cast',
-            style: Theme.of(context)
-                .textTheme
-                .headlineMedium!
-                .copyWith(color: Colors.white),
+            style: Theme.of(context).textTheme.headlineMedium,
           ),
         ),
         SizedBox(
-          height: 120,
+          height: 172,
           child: ListView.builder(
             scrollDirection: Axis.horizontal,
+            padding: const EdgeInsets.symmetric(horizontal: 12),
             itemCount: actors.length,
             itemBuilder: (context, index) {
               final character = actors[index];
               return Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                child: Column(
-                  children: [
-                    CircleAvatar(
-                      radius: 36,
-                      backgroundColor: Colors.grey[800],
-                      backgroundImage: character.personImgURL != null
-                          ? CachedNetworkImageProvider(
-                              character.personImgURL!)
-                          : null,
-                      child: character.personImgURL == null
-                          ? const Icon(Icons.person,
-                              size: 36, color: Colors.white)
-                          : null,
-                    ),
-                    const SizedBox(height: 4),
-                    SizedBox(
-                      width: 72,
-                      child: Text(
+                padding: const EdgeInsets.symmetric(horizontal: 6),
+                child: SizedBox(
+                  width: 100,
+                  child: Column(
+                    children: [
+                      CircleAvatar(
+                        radius: 38,
+                        backgroundColor: const Color(0xFF2A2A2A),
+                        backgroundImage: character.personImgURL != null
+                            ? CachedNetworkImageProvider(
+                                character.personImgURL!)
+                            : null,
+                        child: character.personImgURL == null
+                            ? const Icon(Icons.person,
+                                size: 36, color: Colors.white24)
+                            : null,
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
                         character.personName,
                         style: const TextStyle(
-                            color: Colors.white, fontSize: 11),
+                            color: Colors.white70, fontSize: 13),
                         textAlign: TextAlign.center,
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                       ),
-                    ),
-                  ],
+                      if (character.name != null) ...[
+                        const SizedBox(height: 2),
+                        Text(
+                          character.name!,
+                          style: const TextStyle(
+                              color: Colors.white38, fontSize: 12),
+                          textAlign: TextAlign.center,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ],
+                    ],
+                  ),
                 ),
               );
             },

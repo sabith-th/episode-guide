@@ -61,15 +61,20 @@ class _MyAppState extends State<MyApp> {
         title: 'Episode Guide',
         debugShowCheckedModeBanner: false,
         theme: ThemeData(
-          colorScheme: ColorScheme.dark(
-            primary: Colors.black,
-            secondary: Colors.white,
-            surface: Colors.grey.shade900,
+          useMaterial3: true,
+          colorScheme: ColorScheme.fromSeed(
+            seedColor: const Color(0xFF0F6E8C),
+            brightness: Brightness.dark,
+            surface: const Color(0xFF141414),
           ),
-          primaryColor: Colors.black,
-          scaffoldBackgroundColor: Colors.black,
+          scaffoldBackgroundColor: const Color(0xFF0D0D0D),
           fontFamily: 'AlegreyaSans',
           textTheme: const TextTheme(
+            headlineLarge: TextStyle(
+              fontSize: 32,
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
+            ),
             headlineMedium: TextStyle(
               fontSize: 24,
               fontWeight: FontWeight.bold,
@@ -77,6 +82,29 @@ class _MyAppState extends State<MyApp> {
             ),
             titleMedium: TextStyle(
               fontSize: 18,
+              color: Colors.white70,
+            ),
+            bodyMedium: TextStyle(
+              fontSize: 16,
+              color: Colors.white60,
+            ),
+          ),
+          cardTheme: CardThemeData(
+            color: const Color(0xFF1C1C1C),
+            elevation: 4,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+          ),
+          appBarTheme: const AppBarTheme(
+            backgroundColor: Color(0xFF0D0D0D),
+            elevation: 0,
+            centerTitle: false,
+            iconTheme: IconThemeData(color: Colors.white),
+            titleTextStyle: TextStyle(
+              fontFamily: 'AlegreyaSans',
+              fontSize: 26,
+              fontWeight: FontWeight.bold,
               color: Colors.white,
             ),
           ),
