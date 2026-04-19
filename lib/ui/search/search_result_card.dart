@@ -7,19 +7,19 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 class SearchResultCard extends StatelessWidget {
   final SearchSeries searchSeries;
 
-  const SearchResultCard({Key key, this.searchSeries}) : super(key: key);
+  const SearchResultCard({super.key, required this.searchSeries});
 
   @override
   Widget build(BuildContext context) {
-    //ignore: close_sinks
-    SeriesDetailsBloc _seriesDetailsBloc =
+    final SeriesDetailsBloc seriesDetailsBloc =
         BlocProvider.of<SeriesDetailsBloc>(context);
 
     return Card(
+      color: Colors.white,
       child: InkWell(
         splashColor: Colors.black.withAlpha(30),
         onTap: () {
-          _seriesDetailsBloc.add(FetchSeriesDetails(id: searchSeries.id));
+          seriesDetailsBloc.add(FetchSeriesDetails(id: searchSeries.id));
           Navigator.pushNamed(
             context,
             SeriesDetailsScreen.routeName,
@@ -40,14 +40,14 @@ class SearchResultCard extends StatelessWidget {
                 searchSeries.seriesName,
                 style: Theme.of(context)
                     .textTheme
-                    .headline5
+                    .headlineMedium!
                     .copyWith(color: Colors.black),
               ),
               Text(
                 'Network: ${searchSeries.network}',
                 style: Theme.of(context)
                     .textTheme
-                    .subtitle1
+                    .titleMedium!
                     .copyWith(color: Colors.black),
               ),
               Row(

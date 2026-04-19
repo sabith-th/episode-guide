@@ -1,0 +1,55 @@
+# CLAUDE.md
+
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+
+## Commands
+
+```bash
+flutter pub get                              # Install dependencies
+flutter run                                 # Run on connected device/emulator
+flutter build apk                           # Build Android APK
+flutter build ios                           # Build iOS app
+flutter analyze                             # Lint / static analysis
+flutter pub run build_runner build          # Regenerate .g.dart JSON serialization files
+flutter pub run build_runner build --delete-conflicting-outputs  # Regenerate (force overwrite)
+```
+
+There is no test suite.
+
+## Architecture
+
+Episode Guide is a Flutter app (Android/iOS) for tracking upcoming TV show episodes. It uses the **BLoC pattern** throughout, with a clear separation into four layers:
+
+### BLoC Layer (`lib/blocs/`)
+
+Four BLoCs manage all app state:
+
+- **FavoritesBloc** — CRUD on favorite series list (backed by `FavoritesRepository`). Events: `FetchFavorites`, `AddFavorite`, `RemoveFavorite`.
+- **NextEpisodesBloc** — Fetches next episode data for each favorite series. Listens to `FavoritesBloc` and auto-fetches when favorites change.
+- **SearchSeriesBloc** — Handles series search against the TVDB GraphQL API.
+- **SeriesDetailsBloc** — Loads full series info + cast for the detail screen.
+
+All BLoCs follow the same event/state naming convention: `[Action][Resource]` for events, `[Resource][Status]` for states (e.g., `FavoritesLoaded`, `NextEpisodeError`).
+
+### Repository Layer (`lib/repositories/`)
+
+- **TvdbRepository** — High-level data access; calls `TvdbGraphQLClient` for network data.
+- **TvdbGraphQLClient** — Wraps `graphql_flutter`; executes queries defined in `lib/graphql_operations/queries/`.
+- **FavoritesRepository** — Static methods for reading/writing favorites to `SharedPreferences`.
+
+The GraphQL API endpoint is defined in `lib/constants.dart` (`https://tvdb-graphql-api.sabith-th.now.sh`). Banner images are served from `https://www.thetvdb.com/banners/`.
+
+### Model Layer (`lib/models/`)
+
+Models are annotated with `json_annotation` and code-generated via `json_serializable`. The `.g.dart` files are committed to the repo. Regenerate them with `build_runner build` after changing model annotations.
+
+### UI Layer (`lib/ui/`)
+
+Three screens with named routes:
+- `/` — Home (`home_page.dart`): shows next episodes for favorites
+- `/searchSeries` — Search (`search_page.dart`): TVDB series search
+- `/seriesDetails` — Details (`series_details.dart`): cast, schedule, network info
+
+All screens use `BlocBuilder`/`BlocProvider` from `flutter_bloc`. The app uses a dark Material theme with the custom `AlegreyaSans` font (assets in `assets/`).
+
+BLoCs are provided at the top level in `main.dart` using `MultiBlocProvider`.

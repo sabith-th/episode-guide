@@ -1,6 +1,5 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:episode_guide/blocs/blocs.dart';
-import 'package:episode_guide/constants.dart';
 import 'package:episode_guide/models/next_episode.dart';
 import 'package:episode_guide/ui/widgets.dart';
 import 'package:flutter/material.dart';
@@ -8,17 +7,19 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 class EpisodeCard extends StatelessWidget {
   const EpisodeCard({
-    Key key,
-    @required this.episode,
-  }) : super(key: key);
+    super.key,
+    required this.episode,
+  });
 
   final NextEpisode episode;
 
   @override
   Widget build(BuildContext context) {
-    Episode nextEpisode = episode.episodesSummary.nextEpisode;
+    final Episode? nextEpisode = episode.nextEpisode;
+    final String? imageUrl = episode.series.image;
 
     return Card(
+      color: Colors.white,
       child: InkWell(
         splashColor: Colors.black.withAlpha(30),
         onTap: () {
@@ -30,7 +31,7 @@ class EpisodeCard extends StatelessWidget {
             arguments: SeriesDetailsArgs(
               episode.series.id,
               episode.series.seriesName,
-              episode.images[0].fileName,
+              imageUrl,
             ),
           );
         },
@@ -44,13 +45,15 @@ class EpisodeCard extends StatelessWidget {
                   child: SizedBox(
                     height: 110,
                     width: 75,
-                    child: CachedNetworkImage(
-                      imageUrl: TVDB_API_IMAGES + episode.images[0].fileName,
-                      placeholder: (context, url) =>
-                          new CircularProgressIndicator(),
-                      errorWidget: (context, url, error) =>
-                          new Icon(Icons.error),
-                    ),
+                    child: imageUrl != null
+                        ? CachedNetworkImage(
+                            imageUrl: imageUrl,
+                            progressIndicatorBuilder: (context, url, progress) =>
+                                const CircularProgressIndicator(),
+                            errorWidget: (context, url, error) =>
+                                const Icon(Icons.error),
+                          )
+                        : const Icon(Icons.tv, size: 48),
                   ),
                 ),
                 Expanded(
@@ -64,23 +67,34 @@ class EpisodeCard extends StatelessWidget {
                           episode.series.seriesName,
                           style: Theme.of(context)
                               .textTheme
-                              .headline5
+                              .headlineMedium!
                               .copyWith(color: Colors.black),
                         ),
-                        Text(
-                          'S${nextEpisode.airedSeason} E${nextEpisode.airedEpisodeNumber} - ${nextEpisode.episodeName}',
-                          style: Theme.of(context)
-                              .textTheme
-                              .subtitle1
-                              .copyWith(color: Colors.black),
-                        ),
-                        Text(
-                          'Airs: ${nextEpisode.firstAired}',
-                          style: Theme.of(context)
-                              .textTheme
-                              .subtitle1
-                              .copyWith(color: Colors.black),
-                        ),
+                        if (nextEpisode != null) ...[
+                          Text(
+                            nextEpisode.seasonNumber != null
+                                ? 'Season ${nextEpisode.seasonNumber} - ${nextEpisode.episodeName ?? ''}'
+                                : nextEpisode.episodeName ?? '',
+                            style: Theme.of(context)
+                                .textTheme
+                                .titleMedium!
+                                .copyWith(color: Colors.black),
+                          ),
+                          Text(
+                            'Airs: ${nextEpisode.firstAired ?? 'TBA'}',
+                            style: Theme.of(context)
+                                .textTheme
+                                .titleMedium!
+                                .copyWith(color: Colors.black),
+                          ),
+                        ] else
+                          Text(
+                            'No upcoming episodes',
+                            style: Theme.of(context)
+                                .textTheme
+                                .titleMedium!
+                                .copyWith(color: Colors.grey),
+                          ),
                       ],
                     ),
                   ),
