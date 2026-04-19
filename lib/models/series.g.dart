@@ -32,6 +32,10 @@ Series _$SeriesFromJson(Map<String, dynamic> json) => Series(
   (json['characters'] as List<dynamic>?)
       ?.map((e) => Character.fromJson(e as Map<String, dynamic>))
       .toList(),
+  _statusFromJson(json['status'] as Map<String, dynamic>?),
+  _genresFromJson(json['genres'] as List?),
+  (json['averageRuntime'] as num?)?.toInt(),
+  json['year'] as String?,
 );
 
 Map<String, dynamic> _$SeriesToJson(Series instance) => <String, dynamic>{
@@ -42,4 +46,8 @@ Map<String, dynamic> _$SeriesToJson(Series instance) => <String, dynamic>{
   'score': instance.score,
   'firstAired': instance.firstAired,
   'characters': instance.characters,
+  'status': _statusToJson(instance.status),
+  'genres': _genresToJson(instance.genres),
+  'averageRuntime': instance.averageRuntime,
+  'year': instance.year,
 };

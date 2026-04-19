@@ -1,6 +1,7 @@
 import 'package:episode_guide/models/next_episode.dart';
 import 'package:episode_guide/models/search_series_result.dart';
 import 'package:episode_guide/models/series_details.dart';
+import 'package:episode_guide/models/series_episode.dart';
 import 'package:episode_guide/repositories/tvdb_graphql_client.dart';
 
 class TvdbRepository {
@@ -16,6 +17,10 @@ class TvdbRepository {
 
   Future<SeriesDetails> getSeriesDetails(int id) async {
     return await tvdbGraphQLClient.getSeriesDetails(id);
+  }
+
+  Future<List<SeriesEpisode>> getSeriesEpisodes(int id) async {
+    return await tvdbGraphQLClient.getSeriesEpisodes(id);
   }
 
   Future<SearchSeriesResult?> searchSeries(String name) async {

@@ -2,6 +2,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:episode_guide/blocs/blocs.dart';
 import 'package:episode_guide/models/series.dart';
 import 'package:episode_guide/models/series_details.dart';
+import 'package:episode_guide/ui/series/episodes_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -99,6 +100,33 @@ class _SeriesDetailsScreenState extends State<SeriesDetailsScreen> {
                   child: Padding(
                     padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
                     child: _InfoSection(seriesDetails: seriesDetails),
+                  ),
+                ),
+                SliverToBoxAdapter(
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+                    child: _GenresRow(genres: seriesDetails.series.genres),
+                  ),
+                ),
+                SliverToBoxAdapter(
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+                    child: OutlinedButton.icon(
+                      onPressed: () => Navigator.pushNamed(
+                        context,
+                        EpisodesScreen.routeName,
+                        arguments: EpisodesScreenArgs(args.id, args.name),
+                      ),
+                      icon: const Icon(Icons.list),
+                      label: const Text('All Episodes'),
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: Colors.white70,
+                        side: const BorderSide(color: Colors.white24),
+                        alignment: Alignment.centerLeft,
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 16, vertical: 12),
+                      ),
+                    ),
                   ),
                 ),
                 if (seriesDetails.series.overview != null)
@@ -277,13 +305,51 @@ class _InfoSection extends StatelessWidget {
       runSpacing: 8,
       children: [
         if (series.firstAired != null)
-          _InfoChip(icon: Icons.calendar_today, label: 'First aired: ${series.firstAired!}'),
+          _InfoChip(
+              icon: Icons.calendar_today,
+              label: 'First aired: ${series.firstAired!}'),
         if (seriesDetails.nextEpisode != null)
           _InfoChip(
             icon: Icons.upcoming,
             label: 'Next: ${seriesDetails.nextEpisode!.firstAired ?? 'TBA'}',
           ),
+        if (series.status != null)
+          _InfoChip(icon: Icons.info_outline, label: series.status!),
+        if (series.averageRuntime != null)
+          _InfoChip(
+              icon: Icons.timer_outlined,
+              label: '${series.averageRuntime} min'),
       ],
+    );
+  }
+}
+
+class _GenresRow extends StatelessWidget {
+  final List<String>? genres;
+
+  const _GenresRow({required this.genres});
+
+  @override
+  Widget build(BuildContext context) {
+    if (genres == null || genres!.isEmpty) return const SizedBox.shrink();
+    return Wrap(
+      spacing: 8,
+      runSpacing: 8,
+      children: genres!
+          .map((g) => Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                decoration: BoxDecoration(
+                  color: Colors.white.withAlpha(15),
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(color: Colors.white24, width: 1),
+                ),
+                child: Text(
+                  g,
+                  style: const TextStyle(color: Colors.white60, fontSize: 13),
+                ),
+              ))
+          .toList(),
     );
   }
 }

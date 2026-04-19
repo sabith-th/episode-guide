@@ -56,6 +56,10 @@ class _MyAppState extends State<MyApp> {
           create: (context) =>
               SearchSeriesBloc(tvdbRepository: widget.tvdbRepository),
         ),
+        BlocProvider<SeriesEpisodesBloc>(
+          create: (context) =>
+              SeriesEpisodesBloc(tvdbRepository: widget.tvdbRepository),
+        ),
       ],
       child: MaterialApp(
         title: 'Episode Guide',
@@ -116,6 +120,7 @@ class _MyAppState extends State<MyApp> {
               ),
           SeriesDetailsScreen.routeName: (context) => SeriesDetailsScreen(),
           SearchSeriesScreen.routeName: (context) => SearchSeriesScreen(),
+          EpisodesScreen.routeName: (context) => EpisodesScreen(),
         },
       ),
     );

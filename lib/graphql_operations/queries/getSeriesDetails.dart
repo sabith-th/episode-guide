@@ -8,6 +8,10 @@ const String getSeriesDetails = r'''
         overview
         score
         firstAired
+        year
+        averageRuntime
+        status { name }
+        genres { name }
         characters {
           personName
           name
