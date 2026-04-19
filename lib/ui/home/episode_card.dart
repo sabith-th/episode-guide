@@ -13,11 +13,24 @@ class EpisodeCard extends StatelessWidget {
 
   final NextEpisode episode;
 
+  String? _daysUntilLabel(String? firstAired) {
+    if (firstAired == null) return null;
+    final airDate = DateTime.tryParse(firstAired);
+    if (airDate == null) return null;
+    final today = DateTime.now();
+    final diff = airDate.difference(DateTime(today.year, today.month, today.day)).inDays;
+    if (diff == 0) return 'Today';
+    if (diff == 1) return 'Tomorrow';
+    if (diff < 0) return null;
+    return 'In $diff days';
+  }
+
   @override
   Widget build(BuildContext context) {
     final Episode? nextEpisode = episode.nextEpisode;
     final String? imageUrl = episode.series.image;
     final theme = Theme.of(context);
+    final daysLabel = nextEpisode != null ? _daysUntilLabel(nextEpisode.firstAired) : null;
 
     return Card(
       child: InkWell(
@@ -95,7 +108,7 @@ class EpisodeCard extends StatelessWidget {
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                       ),
-                      const SizedBox(height: 4),
+                      const SizedBox(height: 6),
                       Row(
                         children: [
                           const Icon(Icons.calendar_today,
@@ -105,6 +118,10 @@ class EpisodeCard extends StatelessWidget {
                             nextEpisode.firstAired ?? 'TBA',
                             style: theme.textTheme.bodyMedium,
                           ),
+                          if (daysLabel != null) ...[
+                            const SizedBox(width: 8),
+                            _DaysBadge(label: daysLabel),
+                          ],
                         ],
                       ),
                     ] else
@@ -117,6 +134,34 @@ class EpisodeCard extends StatelessWidget {
               ),
             ),
           ],
+        ),
+      ),
+    );
+  }
+}
+
+class _DaysBadge extends StatelessWidget {
+  final String label;
+
+  const _DaysBadge({required this.label});
+
+  @override
+  Widget build(BuildContext context) {
+    final isUrgent = label == 'Today' || label == 'Tomorrow';
+    final color = isUrgent ? Colors.tealAccent : Colors.white38;
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
+      decoration: BoxDecoration(
+        color: color.withAlpha(30),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: color.withAlpha(120), width: 1),
+      ),
+      child: Text(
+        label,
+        style: TextStyle(
+          fontSize: 11,
+          color: color,
+          fontWeight: FontWeight.w600,
         ),
       ),
     );

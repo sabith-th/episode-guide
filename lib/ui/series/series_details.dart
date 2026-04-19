@@ -13,10 +13,17 @@ class SeriesDetailsArgs {
   SeriesDetailsArgs(this.id, this.name, this.image);
 }
 
-class SeriesDetailsScreen extends StatelessWidget {
+class SeriesDetailsScreen extends StatefulWidget {
   static const routeName = '/seriesDetails';
 
   const SeriesDetailsScreen({super.key});
+
+  @override
+  State<SeriesDetailsScreen> createState() => _SeriesDetailsScreenState();
+}
+
+class _SeriesDetailsScreenState extends State<SeriesDetailsScreen> {
+  bool _overviewExpanded = false;
 
   @override
   Widget build(BuildContext context) {
@@ -26,6 +33,7 @@ class SeriesDetailsScreen extends StatelessWidget {
         BlocProvider.of<SeriesDetailsBloc>(context);
     final FavoritesBloc favoritesBloc =
         BlocProvider.of<FavoritesBloc>(context);
+
 
     return Scaffold(
       extendBodyBehindAppBar: true,
@@ -95,14 +103,11 @@ class SeriesDetailsScreen extends StatelessWidget {
                 ),
                 if (seriesDetails.series.overview != null)
                   SliverToBoxAdapter(
-                    child: Padding(
-                      padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
-                      child: Text(
-                        seriesDetails.series.overview!,
-                        style: const TextStyle(
-                            color: Colors.white70, height: 1.5),
-                        softWrap: true,
-                      ),
+                    child: _OverviewSection(
+                      overview: seriesDetails.series.overview!,
+                      expanded: _overviewExpanded,
+                      onToggle: () => setState(
+                          () => _overviewExpanded = !_overviewExpanded),
                     ),
                   ),
                 SliverToBoxAdapter(
@@ -205,6 +210,58 @@ class _HeroHeader extends StatelessWidget {
           child: Icon(Icons.tv, size: 80, color: Colors.white12),
         ),
       );
+}
+
+class _OverviewSection extends StatelessWidget {
+  final String overview;
+  final bool expanded;
+  final VoidCallback onToggle;
+
+  const _OverviewSection({
+    required this.overview,
+    required this.expanded,
+    required this.onToggle,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          AnimatedCrossFade(
+            duration: const Duration(milliseconds: 200),
+            crossFadeState: expanded
+                ? CrossFadeState.showSecond
+                : CrossFadeState.showFirst,
+            firstChild: Text(
+              overview,
+              style: const TextStyle(color: Colors.white70, height: 1.5),
+              maxLines: 3,
+              overflow: TextOverflow.ellipsis,
+            ),
+            secondChild: Text(
+              overview,
+              style: const TextStyle(color: Colors.white70, height: 1.5),
+            ),
+          ),
+          const SizedBox(height: 4),
+          GestureDetector(
+            onTap: onToggle,
+            child: Text(
+              expanded ? 'Show less' : 'Read more',
+              style: TextStyle(
+                color: Theme.of(context).colorScheme.primary,
+                fontWeight: FontWeight.w600,
+                fontSize: 14,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 }
 
 class _InfoSection extends StatelessWidget {
