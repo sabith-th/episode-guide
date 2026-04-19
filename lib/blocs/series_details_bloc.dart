@@ -2,7 +2,6 @@ import 'package:bloc/bloc.dart';
 import 'package:episode_guide/models/series_details.dart';
 import 'package:episode_guide/repositories/repositories.dart';
 import 'package:equatable/equatable.dart';
-import 'package:meta/meta.dart';
 
 abstract class SeriesDetailsEvent extends Equatable {
   const SeriesDetailsEvent();
@@ -11,7 +10,7 @@ abstract class SeriesDetailsEvent extends Equatable {
 class FetchSeriesDetails extends SeriesDetailsEvent {
   final int id;
 
-  const FetchSeriesDetails({@required this.id});
+  const FetchSeriesDetails({required this.id});
 
   @override
   List<Object> get props => [id];
@@ -33,7 +32,7 @@ class SeriesDetailsError extends SeriesDetailsState {}
 class SeriesDetailsLoaded extends SeriesDetailsState {
   final SeriesDetails seriesDetails;
 
-  SeriesDetailsLoaded({@required this.seriesDetails});
+  const SeriesDetailsLoaded({required this.seriesDetails});
 
   @override
   List<Object> get props => [seriesDetails];
@@ -42,23 +41,20 @@ class SeriesDetailsLoaded extends SeriesDetailsState {
 class SeriesDetailsBloc extends Bloc<SeriesDetailsEvent, SeriesDetailsState> {
   final TvdbRepository tvdbRepository;
 
-  SeriesDetailsBloc({@required this.tvdbRepository});
+  SeriesDetailsBloc({required this.tvdbRepository}) : super(SeriesDetailsEmpty()) {
+    on<FetchSeriesDetails>(_onFetchSeriesDetails);
+  }
 
-  @override
-  SeriesDetailsState get initialState => SeriesDetailsEmpty();
-
-  @override
-  Stream<SeriesDetailsState> mapEventToState(SeriesDetailsEvent event) async* {
-    if (event is FetchSeriesDetails) {
-      yield SeriesDetailsLoading();
-      try {
-        final SeriesDetails seriesDetails =
-            await tvdbRepository.getSeriesDetails(event.id);
-        yield SeriesDetailsLoaded(seriesDetails: seriesDetails);
-      } catch (error) {
-        print('Something went wrong while series details: $error');
-        yield SeriesDetailsError();
-      }
+  Future<void> _onFetchSeriesDetails(
+      FetchSeriesDetails event, Emitter<SeriesDetailsState> emit) async {
+    emit(SeriesDetailsLoading());
+    try {
+      final SeriesDetails seriesDetails =
+          await tvdbRepository.getSeriesDetails(event.id);
+      emit(SeriesDetailsLoaded(seriesDetails: seriesDetails));
+    } catch (error) {
+      print('Something went wrong while loading series details: $error');
+      emit(SeriesDetailsError());
     }
   }
 }

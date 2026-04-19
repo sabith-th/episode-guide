@@ -1,7 +1,6 @@
 import 'package:bloc/bloc.dart';
 import 'package:episode_guide/repositories/repositories.dart';
 import 'package:equatable/equatable.dart';
-import 'package:meta/meta.dart';
 
 abstract class FavoritesEvent extends Equatable {
   const FavoritesEvent();
@@ -15,7 +14,7 @@ class FetchFavorites extends FavoritesEvent {}
 class AddFavorite extends FavoritesEvent {
   final int seriesId;
 
-  const AddFavorite({@required this.seriesId});
+  const AddFavorite({required this.seriesId});
 
   @override
   List<Object> get props => [seriesId];
@@ -24,7 +23,7 @@ class AddFavorite extends FavoritesEvent {
 class RemoveFavorite extends FavoritesEvent {
   final int seriesId;
 
-  const RemoveFavorite({@required this.seriesId});
+  const RemoveFavorite({required this.seriesId});
 
   @override
   List<Object> get props => [seriesId];
@@ -44,7 +43,7 @@ class FavoritesLoading extends FavoritesState {}
 class FavoritesLoaded extends FavoritesState {
   final List<int> seriesIds;
 
-  const FavoritesLoaded({@required this.seriesIds});
+  const FavoritesLoaded({required this.seriesIds});
 
   @override
   List<Object> get props => [seriesIds];
@@ -55,45 +54,52 @@ class FavoritesError extends FavoritesState {}
 class FavoriteAdded extends FavoritesState {}
 
 class FavoritesBloc extends Bloc<FavoritesEvent, FavoritesState> {
-  @override
-  FavoritesState get initialState => FavoritesLoading();
+  FavoritesBloc() : super(FavoritesLoading()) {
+    on<FetchFavorites>(_onFetchFavorites);
+    on<AddFavorite>(_onAddFavorite);
+    on<RemoveFavorite>(_onRemoveFavorite);
+  }
 
-  @override
-  Stream<FavoritesState> mapEventToState(FavoritesEvent event) async* {
+  Future<void> _onFetchFavorites(
+      FetchFavorites event, Emitter<FavoritesState> emit) async {
+    emit(FavoritesLoading());
+    try {
+      final List<int> seriesIds =
+          await FavoritesRepository.getFavoriteSeriesList();
+      if (seriesIds.isEmpty) {
+        emit(FavoritesEmpty());
+      } else {
+        emit(FavoritesLoaded(seriesIds: seriesIds));
+      }
+    } catch (error) {
+      print('Error loading favorites: $error');
+      emit(FavoritesError());
+    }
+  }
+
+  Future<void> _onAddFavorite(
+      AddFavorite event, Emitter<FavoritesState> emit) async {
     final currentState = state;
+    if (currentState is FavoritesLoaded) {
+      final List<int> updatedSeriesIds = List.from(currentState.seriesIds)
+        ..add(event.seriesId);
+      emit(FavoritesLoaded(seriesIds: updatedSeriesIds));
+      FavoritesRepository.addFavoriteSeries(event.seriesId);
+    } else if (currentState is FavoritesEmpty) {
+      emit(FavoritesLoaded(seriesIds: [event.seriesId]));
+      FavoritesRepository.addFavoriteSeries(event.seriesId);
+    }
+  }
 
-    if (event is FetchFavorites) {
-      yield FavoritesLoading();
-      try {
-        final List<int> seriesIds =
-            await FavoritesRepository.getFavoriteSeriesList();
-        if (seriesIds.isEmpty) {
-          yield FavoritesEmpty();
-        } else {
-          yield FavoritesLoaded(seriesIds: seriesIds);
-        }
-      } catch (error) {
-        print('Error loading favorites: $error');
-        yield FavoritesError();
-      }
-    } else if (event is AddFavorite) {
-      if (currentState is FavoritesLoaded) {
-        final List<int> updatedSeriesIds = List.from(currentState.seriesIds)
-          ..add(event.seriesId);
-        yield FavoritesLoaded(seriesIds: updatedSeriesIds);
-        FavoritesRepository.addFavoriteSeries(event.seriesId);
-      } else if (currentState is FavoritesEmpty) {
-        final List<int> updatedSeriesIds = [event.seriesId];
-        yield FavoritesLoaded(seriesIds: updatedSeriesIds);
-        FavoritesRepository.addFavoriteSeries(event.seriesId);
-      }
-    } else if (event is RemoveFavorite) {
-      if (currentState is FavoritesLoaded) {
-        final updatedSeriesIds =
-            currentState.seriesIds.where((id) => id != event.seriesId).toList();
-        yield FavoritesLoaded(seriesIds: updatedSeriesIds);
-        FavoritesRepository.removeFavoriteSeries(event.seriesId);
-      }
+  Future<void> _onRemoveFavorite(
+      RemoveFavorite event, Emitter<FavoritesState> emit) async {
+    final currentState = state;
+    if (currentState is FavoritesLoaded) {
+      final updatedSeriesIds = currentState.seriesIds
+          .where((id) => id != event.seriesId)
+          .toList();
+      emit(FavoritesLoaded(seriesIds: updatedSeriesIds));
+      FavoritesRepository.removeFavoriteSeries(event.seriesId);
     }
   }
 }

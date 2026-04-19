@@ -5,7 +5,6 @@ import 'package:episode_guide/blocs/blocs.dart';
 import 'package:episode_guide/models/next_episode.dart';
 import 'package:episode_guide/repositories/repositories.dart';
 import 'package:equatable/equatable.dart';
-import 'package:meta/meta.dart';
 
 abstract class NextEpisodeEvent extends Equatable {
   const NextEpisodeEvent();
@@ -17,13 +16,13 @@ abstract class NextEpisodeEvent extends Equatable {
 class FetchNextEpisode extends NextEpisodeEvent {
   final List<int> ids;
 
-  const FetchNextEpisode({@required this.ids});
+  const FetchNextEpisode({required this.ids});
 }
 
 class RefreshNextEpisode extends NextEpisodeEvent {
   final List<int> ids;
 
-  const RefreshNextEpisode({@required this.ids});
+  const RefreshNextEpisode({required this.ids});
 }
 
 abstract class NextEpisodeState extends Equatable {
@@ -42,57 +41,53 @@ class NextEpisodeError extends NextEpisodeState {}
 class NextEpisodeLoaded extends NextEpisodeState {
   final List<NextEpisode> nextEpisodes;
 
-  const NextEpisodeLoaded({@required this.nextEpisodes});
+  const NextEpisodeLoaded({required this.nextEpisodes});
 }
 
 class NextEpisodesBloc extends Bloc<NextEpisodeEvent, NextEpisodeState> {
   final TvdbRepository tvdbRepository;
   final FavoritesBloc favoritesBloc;
-  StreamSubscription favoritesSubscription;
+  late final StreamSubscription<FavoritesState> _favoritesSubscription;
 
-  NextEpisodesBloc({this.favoritesBloc, @required this.tvdbRepository}) {
-    favoritesSubscription = favoritesBloc.listen((state) {
+  NextEpisodesBloc(
+      {required this.favoritesBloc, required this.tvdbRepository})
+      : super(NextEpisodeEmpty()) {
+    on<FetchNextEpisode>(_onFetchNextEpisode);
+    on<RefreshNextEpisode>(_onRefreshNextEpisode);
+    _favoritesSubscription = favoritesBloc.stream.listen((state) {
       if (state is FavoritesLoaded) {
-        add(FetchNextEpisode(
-            ids: (favoritesBloc.state as FavoritesLoaded).seriesIds));
+        add(FetchNextEpisode(ids: state.seriesIds));
       }
     });
   }
 
-  @override
-  NextEpisodeState get initialState => NextEpisodeEmpty();
-
-  @override
-  Stream<NextEpisodeState> mapEventToState(NextEpisodeEvent event) async* {
-    final currentState = state;
-
-    if (event is FetchNextEpisode) {
-      yield NextEpisodeLoading();
-      try {
-        final List<NextEpisode> nextEpisodes =
-            await tvdbRepository.getNextEpisodes(event.ids);
-        yield NextEpisodeLoaded(nextEpisodes: nextEpisodes);
-      } catch (error) {
-        print('Something went wrong while fetching next episodes: $error');
-        yield NextEpisodeError();
-      }
+  Future<void> _onFetchNextEpisode(
+      FetchNextEpisode event, Emitter<NextEpisodeState> emit) async {
+    emit(NextEpisodeLoading());
+    try {
+      final List<NextEpisode> nextEpisodes =
+          await tvdbRepository.getNextEpisodes(event.ids);
+      emit(NextEpisodeLoaded(nextEpisodes: nextEpisodes));
+    } catch (error) {
+      print('Something went wrong while fetching next episodes: $error');
+      emit(NextEpisodeError());
     }
+  }
 
-    if (event is RefreshNextEpisode) {
-      try {
-        final List<NextEpisode> nextEpisodes =
-            await tvdbRepository.getNextEpisodes(event.ids);
-        yield NextEpisodeLoaded(nextEpisodes: nextEpisodes);
-      } catch (error) {
-        print('Something went wrong while fetching next episodes: $error');
-        yield currentState;
-      }
+  Future<void> _onRefreshNextEpisode(
+      RefreshNextEpisode event, Emitter<NextEpisodeState> emit) async {
+    try {
+      final List<NextEpisode> nextEpisodes =
+          await tvdbRepository.getNextEpisodes(event.ids);
+      emit(NextEpisodeLoaded(nextEpisodes: nextEpisodes));
+    } catch (error) {
+      print('Something went wrong while fetching next episodes: $error');
     }
   }
 
   @override
-  Future<Function> close() {
-    favoritesSubscription.cancel();
+  Future<void> close() {
+    _favoritesSubscription.cancel();
     return super.close();
   }
 }
