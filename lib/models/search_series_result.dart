@@ -14,16 +14,20 @@ class SearchSeriesResult {
   Map<String, dynamic> toJson() => _$SearchSeriesResultToJson(this);
 }
 
+int _tvdbIdToInt(String value) => int.parse(value);
+
 @JsonSerializable()
 class SearchSeries {
+  @JsonKey(name: 'tvdb_id', fromJson: _tvdbIdToInt)
   final int id;
+  @JsonKey(name: 'name')
   final String seriesName;
-  final String network;
-  final String firstAired;
-  final String status;
+  final String? network;
+  @JsonKey(name: 'first_air_time')
+  final String? firstAired;
+  final String? status;
 
-  SearchSeries(
-      this.id, this.seriesName, this.network, this.firstAired, this.status);
+  SearchSeries(this.id, this.seriesName, this.network, this.firstAired, this.status);
 
   factory SearchSeries.fromJson(Map<String, dynamic> json) =>
       _$SearchSeriesFromJson(json);

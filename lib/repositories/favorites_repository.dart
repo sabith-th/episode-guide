@@ -4,7 +4,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 class FavoritesRepository {
   static Future<List<int>> getFavoriteSeriesList() async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
-    List<String> seriesIds = prefs.getStringList(FAVORITES_KEY);
+    final List<String>? seriesIds = prefs.getStringList(FAVORITES_KEY);
     if (seriesIds != null) {
       return seriesIds.map((id) => int.parse(id)).toList();
     }
@@ -12,12 +12,10 @@ class FavoritesRepository {
   }
 
   static Future<bool> addFavoriteSeries(int id) async {
-    String idString = id.toString();
+    final String idString = id.toString();
     final SharedPreferences prefs = await SharedPreferences.getInstance();
-    List<String> seriesIds = prefs.getStringList(FAVORITES_KEY);
-    if (seriesIds == null) {
-      seriesIds = <String>[];
-    }
+    final List<String> seriesIds =
+        prefs.getStringList(FAVORITES_KEY) ?? <String>[];
     if (seriesIds.contains(idString)) {
       return true;
     }
@@ -26,9 +24,10 @@ class FavoritesRepository {
   }
 
   static Future<bool> removeFavoriteSeries(int id) async {
-    String idString = id.toString();
+    final String idString = id.toString();
     final SharedPreferences prefs = await SharedPreferences.getInstance();
-    List<String> seriesIds = prefs.getStringList(FAVORITES_KEY);
+    final List<String> seriesIds =
+        prefs.getStringList(FAVORITES_KEY) ?? <String>[];
     seriesIds.remove(idString);
     return prefs.setStringList(FAVORITES_KEY, seriesIds);
   }

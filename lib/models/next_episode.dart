@@ -6,10 +6,9 @@ part 'next_episode.g.dart';
 @JsonSerializable()
 class NextEpisode {
   final Series series;
-  final EpisodesSummary episodesSummary;
-  final List<Images> images;
+  final Episode? nextEpisode;
 
-  NextEpisode(this.series, this.episodesSummary, this.images);
+  NextEpisode(this.series, this.nextEpisode);
 
   factory NextEpisode.fromJson(Map<String, dynamic> json) =>
       _$NextEpisodeFromJson(json);
@@ -18,31 +17,18 @@ class NextEpisode {
 }
 
 @JsonSerializable()
-class EpisodesSummary {
-  @JsonKey(name: 'nextEpisode')
-  final Episode nextEpisode;
-
-  EpisodesSummary(this.nextEpisode);
-
-  factory EpisodesSummary.fromJson(Map<String, dynamic> json) =>
-      _$EpisodesSummaryFromJson(json);
-
-  Map<String, dynamic> toJson() => _$EpisodesSummaryToJson(this);
-}
-
-@JsonSerializable()
 class Episode {
-  final int airedSeason;
-  final String episodeName;
-  final String firstAired;
-  final int airedEpisodeNumber;
+  final int id;
+  @JsonKey(name: 'name')
+  final String? episodeName;
+  @JsonKey(name: 'aired')
+  final String? firstAired;
+  final int? seasonNumber;
 
-  Episode(this.airedSeason, this.episodeName, this.firstAired,
-      this.airedEpisodeNumber);
+  Episode(this.id, this.episodeName, this.firstAired, this.seasonNumber);
 
   factory Episode.fromJson(Map<String, dynamic> json) =>
       _$EpisodeFromJson(json);
 
   Map<String, dynamic> toJson() => _$EpisodeToJson(this);
 }
-

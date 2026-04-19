@@ -1,4 +1,3 @@
-import 'package:bloc/bloc.dart';
 import 'package:episode_guide/blocs/blocs.dart';
 import 'package:episode_guide/constants.dart';
 import 'package:episode_guide/repositories/repositories.dart';
@@ -8,17 +7,19 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 
 void main() {
-  BlocSupervisor.delegate = SimpleBlocDelegate();
+  Bloc.observer = SimpleBlocObserver();
 
-  final HttpLink _httpLink = HttpLink(uri: TVDB_GRAPHQL_API);
+  final HttpLink httpLink = HttpLink(TVDB_GRAPHQL_API);
 
-  final GraphQLClient _client =
-      GraphQLClient(link: _httpLink, cache: InMemoryCache());
+  final GraphQLClient client = GraphQLClient(
+    link: httpLink,
+    cache: GraphQLCache(store: InMemoryStore()),
+  );
 
   final TvdbRepository tvdbRepository =
-      TvdbRepository(tvdbGraphQLClient: TvdbGraphQLClient(client: _client));
+      TvdbRepository(tvdbGraphQLClient: TvdbGraphQLClient(client: client));
 
-  return runApp(
+  runApp(
     BlocProvider(
       create: (context) {
         return FavoritesBloc()..add(FetchFavorites());
@@ -31,7 +32,7 @@ void main() {
 class MyApp extends StatefulWidget {
   final TvdbRepository tvdbRepository;
 
-  const MyApp({Key key, @required this.tvdbRepository}) : super(key: key);
+  const MyApp({super.key, required this.tvdbRepository});
 
   @override
   _MyAppState createState() => _MyAppState();
@@ -60,19 +61,21 @@ class _MyAppState extends State<MyApp> {
         title: 'Episode Guide',
         debugShowCheckedModeBanner: false,
         theme: ThemeData(
-          primaryColorDark: Colors.grey[900],
-          primaryColorLight: Colors.grey[500],
+          colorScheme: ColorScheme.dark(
+            primary: Colors.black,
+            secondary: Colors.white,
+            surface: Colors.grey.shade900,
+          ),
           primaryColor: Colors.black,
-          accentColor: Colors.white,
-          primarySwatch: Colors.blue,
+          scaffoldBackgroundColor: Colors.black,
           fontFamily: 'AlegreyaSans',
-          textTheme: TextTheme(
-            headline5: TextStyle(
+          textTheme: const TextTheme(
+            headlineMedium: TextStyle(
               fontSize: 24,
               fontWeight: FontWeight.bold,
               color: Colors.white,
             ),
-            subtitle1: TextStyle(
+            titleMedium: TextStyle(
               fontSize: 18,
               color: Colors.white,
             ),

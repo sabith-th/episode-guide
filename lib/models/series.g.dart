@@ -6,29 +6,40 @@ part of 'series.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-Series _$SeriesFromJson(Map<String, dynamic> json) {
-  return Series(
-      json['id'] as int,
-      json['seriesId'] as String,
-      json['seriesName'] as String,
-      json['overview'] as String,
-      json['network'] as String,
-      json['banner'] as String,
-      json['airsTime'] as String,
-      json['airsDayOfWeek'] as String,
-      json['rating'] as String,
-      (json['siteRating'] as num)?.toDouble());
-}
+Character _$CharacterFromJson(Map<String, dynamic> json) => Character(
+  json['personName'] as String,
+  json['name'] as String?,
+  json['peopleType'] as String?,
+  json['personImgURL'] as String?,
+  json['isFeatured'] as bool?,
+);
+
+Map<String, dynamic> _$CharacterToJson(Character instance) => <String, dynamic>{
+  'personName': instance.personName,
+  'name': instance.name,
+  'peopleType': instance.peopleType,
+  'personImgURL': instance.personImgURL,
+  'isFeatured': instance.isFeatured,
+};
+
+Series _$SeriesFromJson(Map<String, dynamic> json) => Series(
+  (json['id'] as num).toInt(),
+  json['name'] as String,
+  json['overview'] as String?,
+  json['image'] as String?,
+  (json['score'] as num?)?.toDouble(),
+  json['firstAired'] as String?,
+  (json['characters'] as List<dynamic>?)
+      ?.map((e) => Character.fromJson(e as Map<String, dynamic>))
+      .toList(),
+);
 
 Map<String, dynamic> _$SeriesToJson(Series instance) => <String, dynamic>{
-      'id': instance.id,
-      'seriesId': instance.seriesId,
-      'seriesName': instance.seriesName,
-      'overview': instance.overview,
-      'network': instance.network,
-      'banner': instance.banner,
-      'airsTime': instance.airsTime,
-      'airsDayOfWeek': instance.airsDayOfWeek,
-      'rating': instance.rating,
-      'siteRating': instance.siteRating
-    };
+  'id': instance.id,
+  'name': instance.seriesName,
+  'overview': instance.overview,
+  'image': instance.image,
+  'score': instance.score,
+  'firstAired': instance.firstAired,
+  'characters': instance.characters,
+};

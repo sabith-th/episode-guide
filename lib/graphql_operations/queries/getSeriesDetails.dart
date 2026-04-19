@@ -1,28 +1,26 @@
 const String getSeriesDetails = r'''
-  query SeriesDetails($id: Int!, $keyType: KeyType!) {
+  query SeriesDetails($id: Int!) {
     seriesInfo(id: $id) {
       series {
         id
-        seriesId
-        seriesName
-        overview
-        network
-        banner
-        airsTime
-        airsDayOfWeek
-        rating
-        siteRating
-      }
-      actors {
         name
-        role
         image
-        sortOrder
+        overview
+        score
+        firstAired
+        characters {
+          personName
+          name
+          peopleType
+          personImgURL
+          isFeatured
+        }
       }
-      images(keyType: $keyType) {
-        fileName
-        resolution
-        thumbnail
+      nextEpisode {
+        id
+        name
+        aired
+        seasonNumber
       }
     }
   }

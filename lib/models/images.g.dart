@@ -6,13 +6,14 @@ part of 'images.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-Images _$ImagesFromJson(Map<String, dynamic> json) {
-  return Images(json['fileName'] as String, json['resolution'] as String,
-      json['thumbnail'] as String);
-}
+Images _$ImagesFromJson(Map<String, dynamic> json) => Images(
+  json['fileName'] as String,
+  json['resolution'] as String,
+  json['thumbnail'] as String,
+);
 
 Map<String, dynamic> _$ImagesToJson(Images instance) => <String, dynamic>{
-      'fileName': instance.fileName,
-      'resolution': instance.resolution,
-      'thumbnail': instance.thumbnail
-    };
+  'fileName': instance.fileName,
+  'resolution': instance.resolution,
+  'thumbnail': instance.thumbnail,
+};

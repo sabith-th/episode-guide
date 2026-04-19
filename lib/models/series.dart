@@ -3,29 +3,46 @@ import 'package:json_annotation/json_annotation.dart';
 part 'series.g.dart';
 
 @JsonSerializable()
+class Character {
+  final String personName;
+  final String? name;
+  final String? peopleType;
+  final String? personImgURL;
+  final bool? isFeatured;
+
+  Character(
+    this.personName,
+    this.name,
+    this.peopleType,
+    this.personImgURL,
+    this.isFeatured,
+  );
+
+  factory Character.fromJson(Map<String, dynamic> json) =>
+      _$CharacterFromJson(json);
+
+  Map<String, dynamic> toJson() => _$CharacterToJson(this);
+}
+
+@JsonSerializable()
 class Series {
   final int id;
-  final String seriesId;
+  @JsonKey(name: 'name')
   final String seriesName;
-  final String overview;
-  final String network;
-  final String banner;
-  final String airsTime;
-  final String airsDayOfWeek;
-  final String rating;
-  final double siteRating;
+  final String? overview;
+  final String? image;
+  final double? score;
+  final String? firstAired;
+  final List<Character>? characters;
 
   Series(
     this.id,
-    this.seriesId,
     this.seriesName,
     this.overview,
-    this.network,
-    this.banner,
-    this.airsTime,
-    this.airsDayOfWeek,
-    this.rating,
-    this.siteRating,
+    this.image,
+    this.score,
+    this.firstAired,
+    this.characters,
   );
 
   factory Series.fromJson(Map<String, dynamic> json) => _$SeriesFromJson(json);

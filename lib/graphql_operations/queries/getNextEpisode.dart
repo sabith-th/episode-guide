@@ -1,31 +1,20 @@
 const String getNextEpisode = r'''
-  query NextEpisode($id: Int!, $keyType: KeyType!) {
+  query NextEpisode($id: Int!) {
     seriesInfo(id: $id) {
       series {
         id
-        seriesId
-        seriesName
+        name
+        image
         overview
-        network
-        banner
-        airsTime
-        airsDayOfWeek
-        rating
-        siteRating
+        score
+        firstAired
       }
-      episodesSummary {
-        nextEpisode {
-          airedSeason
-          episodeName
-          firstAired
-          airedEpisodeNumber
-        }
-      }
-      images(keyType: $keyType) {
-        fileName
-        resolution
-        thumbnail
+      nextEpisode {
+        id
+        name
+        aired
+        seasonNumber
       }
     }
-   }
+  }
 ''';

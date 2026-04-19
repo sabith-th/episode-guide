@@ -1,10 +1,10 @@
 const String searchSeries = r'''
   query SearchSeries($name: String!) {
     searchSeries(name: $name) {
-      id
-      seriesName
+      tvdb_id
+      name
       network
-      firstAired
+      first_air_time
       status
     }
   }
