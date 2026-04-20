@@ -1,12 +1,30 @@
 import 'package:episode_guide/blocs/blocs.dart';
 import 'package:episode_guide/constants.dart';
 import 'package:episode_guide/repositories/repositories.dart';
+import 'package:episode_guide/services/notification_service.dart';
+import 'package:episode_guide/tasks/episode_check_task.dart';
 import 'package:episode_guide/ui/widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
+import 'package:workmanager/workmanager.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  await NotificationService.init();
+  await NotificationService.requestPermissions();
+
+  await Workmanager().initialize(callbackDispatcher);
+  await Workmanager().registerPeriodicTask(
+    episodeCheckTaskUniqueName,
+    episodeCheckTaskName,
+    frequency: const Duration(hours: 24),
+    initialDelay: _delayUntil(hour: 21),
+    existingWorkPolicy: ExistingPeriodicWorkPolicy.replace,
+    constraints: Constraints(networkType: NetworkType.connected),
+  );
+
   Bloc.observer = SimpleBlocObserver();
 
   final HttpLink httpLink = HttpLink(TVDB_GRAPHQL_API);
@@ -125,4 +143,11 @@ class _MyAppState extends State<MyApp> {
       ),
     );
   }
+}
+
+Duration _delayUntil({required int hour, int minute = 0}) {
+  final now = DateTime.now();
+  var next = DateTime(now.year, now.month, now.day, hour, minute);
+  if (!next.isAfter(now)) next = next.add(const Duration(days: 1));
+  return next.difference(now);
 }
