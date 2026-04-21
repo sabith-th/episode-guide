@@ -6,6 +6,15 @@ import 'package:episode_guide/models/next_episode.dart';
 import 'package:episode_guide/repositories/repositories.dart';
 import 'package:equatable/equatable.dart';
 
+int _compareAirDates(NextEpisode a, NextEpisode b) {
+  final aDate = a.nextEpisode?.firstAired;
+  final bDate = b.nextEpisode?.firstAired;
+  if (aDate == null && bDate == null) return 0;
+  if (aDate == null) return 1;
+  if (bDate == null) return -1;
+  return aDate.compareTo(bDate);
+}
+
 abstract class NextEpisodeEvent extends Equatable {
   const NextEpisodeEvent();
 
@@ -67,10 +76,17 @@ class NextEpisodesBloc extends Bloc<NextEpisodeEvent, NextEpisodeState> {
     try {
       final List<NextEpisode> nextEpisodes =
           await tvdbRepository.getNextEpisodes(event.ids);
+      nextEpisodes.sort(_compareAirDates);
+      EpisodesCacheRepository.save(nextEpisodes);
       emit(NextEpisodeLoaded(nextEpisodes: nextEpisodes));
     } catch (error) {
       print('Something went wrong while fetching next episodes: $error');
-      emit(NextEpisodeError());
+      final cached = await EpisodesCacheRepository.load();
+      if (cached != null) {
+        emit(NextEpisodeLoaded(nextEpisodes: cached));
+      } else {
+        emit(NextEpisodeError());
+      }
     }
   }
 
@@ -79,6 +95,8 @@ class NextEpisodesBloc extends Bloc<NextEpisodeEvent, NextEpisodeState> {
     try {
       final List<NextEpisode> nextEpisodes =
           await tvdbRepository.getNextEpisodes(event.ids);
+      nextEpisodes.sort(_compareAirDates);
+      EpisodesCacheRepository.save(nextEpisodes);
       emit(NextEpisodeLoaded(nextEpisodes: nextEpisodes));
     } catch (error) {
       print('Something went wrong while fetching next episodes: $error');
