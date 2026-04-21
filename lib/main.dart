@@ -12,8 +12,12 @@ import 'package:workmanager/workmanager.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  await NotificationService.init();
-  await NotificationService.requestPermissions();
+  try {
+    await NotificationService.init();
+    await NotificationService.requestPermissions();
+  } catch (e) {
+    print('Notification init failed: $e');
+  }
 
   await Workmanager().initialize(callbackDispatcher);
   await Workmanager().registerPeriodicTask(
