@@ -38,9 +38,20 @@ class SeriesEpisodesLoaded extends SeriesEpisodesState {
   List<Object> get props => [episodes];
 }
 
+class _CachedEpisodes {
+  final List<SeriesEpisode> episodes;
+  final DateTime fetchedAt;
+
+  _CachedEpisodes(this.episodes) : fetchedAt = DateTime.now();
+
+  bool get isExpired =>
+      DateTime.now().difference(fetchedAt) > const Duration(minutes: 30);
+}
+
 class SeriesEpisodesBloc
     extends Bloc<SeriesEpisodesEvent, SeriesEpisodesState> {
   final TvdbRepository tvdbRepository;
+  final Map<int, _CachedEpisodes> _cache = {};
 
   SeriesEpisodesBloc({required this.tvdbRepository})
       : super(SeriesEpisodesInitial()) {
@@ -49,10 +60,16 @@ class SeriesEpisodesBloc
 
   Future<void> _onFetchSeriesEpisodes(
       FetchSeriesEpisodes event, Emitter<SeriesEpisodesState> emit) async {
+    final cached = _cache[event.seriesId];
+    if (cached != null && !cached.isExpired) {
+      emit(SeriesEpisodesLoaded(episodes: cached.episodes));
+      return;
+    }
+
     emit(SeriesEpisodesLoading());
     try {
-      final episodes =
-          await tvdbRepository.getSeriesEpisodes(event.seriesId);
+      final episodes = await tvdbRepository.getSeriesEpisodes(event.seriesId);
+      _cache[event.seriesId] = _CachedEpisodes(episodes);
       emit(SeriesEpisodesLoaded(episodes: episodes));
     } catch (error) {
       print('Something went wrong while loading episodes: $error');

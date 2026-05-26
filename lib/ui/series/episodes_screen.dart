@@ -11,21 +11,29 @@ class EpisodesScreenArgs {
   EpisodesScreenArgs(this.seriesId, this.seriesName);
 }
 
-class EpisodesScreen extends StatelessWidget {
+class EpisodesScreen extends StatefulWidget {
   static const routeName = '/episodes';
 
   const EpisodesScreen({super.key});
 
   @override
+  State<EpisodesScreen> createState() => _EpisodesScreenState();
+}
+
+class _EpisodesScreenState extends State<EpisodesScreen> {
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final args =
+        ModalRoute.of(context)!.settings.arguments as EpisodesScreenArgs;
+    BlocProvider.of<SeriesEpisodesBloc>(context)
+        .add(FetchSeriesEpisodes(seriesId: args.seriesId));
+  }
+
+  @override
   Widget build(BuildContext context) {
     final args =
         ModalRoute.of(context)!.settings.arguments as EpisodesScreenArgs;
-    final bloc = BlocProvider.of<SeriesEpisodesBloc>(context);
-
-    // Fetch on first open
-    if (bloc.state is SeriesEpisodesInitial) {
-      bloc.add(FetchSeriesEpisodes(seriesId: args.seriesId));
-    }
 
     return Scaffold(
       appBar: AppBar(title: Text(args.seriesName)),
