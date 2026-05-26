@@ -18,6 +18,7 @@ const String getSeriesDetails = r'''
           peopleType
           personImgURL
           isFeatured
+          peopleId
         }
       }
       nextEpisode {

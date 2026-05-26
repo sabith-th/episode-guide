@@ -1,6 +1,7 @@
 import 'package:episode_guide/graphql_operations/queries/queries.dart'
     as queries;
 import 'package:episode_guide/models/next_episode.dart';
+import 'package:episode_guide/models/person.dart';
 import 'package:episode_guide/models/search_series_result.dart';
 import 'package:episode_guide/models/series_details.dart';
 import 'package:episode_guide/models/series_episode.dart';
@@ -59,6 +60,35 @@ class TvdbGraphQLClient {
     return list
         .map((e) => SeriesEpisode.fromJson(e as Map<String, dynamic>))
         .toList();
+  }
+
+  Future<({String? name, String? image})?> getSeriesBasicInfo(int id) async {
+    final QueryResult result = await client.query(
+      QueryOptions(
+        document: gql(queries.getSeriesName),
+        variables: <String, dynamic>{'id': id},
+        fetchPolicy: FetchPolicy.cacheFirst,
+      ),
+    );
+    if (result.hasException) return null;
+    final data = result.data?['series'];
+    if (data == null) return null;
+    return (name: data['name'] as String?, image: data['image'] as String?);
+  }
+
+  Future<Person> getPerson(int id) async {
+    final QueryResult result = await client.query(
+      QueryOptions(
+        document: gql(queries.getPerson),
+        variables: <String, dynamic>{'id': id},
+        fetchPolicy: FetchPolicy.networkOnly,
+      ),
+    );
+    if (result.hasException) {
+      throw Exception(result.exception.toString());
+    }
+    final Map<String, dynamic> personMap = result.data!['person'];
+    return Person.fromJson(personMap);
   }
 
   Future<SearchSeriesResult?> searchSeries(String name) async {

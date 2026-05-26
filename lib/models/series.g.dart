@@ -12,6 +12,7 @@ Character _$CharacterFromJson(Map<String, dynamic> json) => Character(
   json['peopleType'] as String?,
   json['personImgURL'] as String?,
   json['isFeatured'] as bool?,
+  (json['peopleId'] as num?)?.toInt(),
 );
 
 Map<String, dynamic> _$CharacterToJson(Character instance) => <String, dynamic>{
@@ -20,6 +21,7 @@ Map<String, dynamic> _$CharacterToJson(Character instance) => <String, dynamic>{
   'peopleType': instance.peopleType,
   'personImgURL': instance.personImgURL,
   'isFeatured': instance.isFeatured,
+  'peopleId': instance.peopleId,
 };
 
 Series _$SeriesFromJson(Map<String, dynamic> json) => Series(

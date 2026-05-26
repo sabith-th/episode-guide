@@ -3,6 +3,7 @@ import 'package:episode_guide/constants.dart';
 import 'package:episode_guide/repositories/repositories.dart';
 import 'package:episode_guide/services/notification_service.dart';
 import 'package:episode_guide/tasks/episode_check_task.dart';
+import 'package:episode_guide/ui/series/person_details_screen.dart';
 import 'package:episode_guide/ui/widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -82,6 +83,10 @@ class _MyAppState extends State<MyApp> {
           create: (context) =>
               SeriesEpisodesBloc(tvdbRepository: widget.tvdbRepository),
         ),
+        BlocProvider<PersonDetailsBloc>(
+          create: (context) =>
+              PersonDetailsBloc(tvdbRepository: widget.tvdbRepository),
+        ),
       ],
       child: MaterialApp(
         title: 'Episode Guide',
@@ -143,6 +148,7 @@ class _MyAppState extends State<MyApp> {
           SeriesDetailsScreen.routeName: (context) => SeriesDetailsScreen(),
           SearchSeriesScreen.routeName: (context) => SearchSeriesScreen(),
           EpisodesScreen.routeName: (context) => EpisodesScreen(),
+          PersonDetailsScreen.routeName: (context) => PersonDetailsScreen(),
         },
       ),
     );

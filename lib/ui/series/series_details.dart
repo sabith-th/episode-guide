@@ -3,6 +3,7 @@ import 'package:episode_guide/blocs/blocs.dart';
 import 'package:episode_guide/models/series.dart';
 import 'package:episode_guide/models/series_details.dart';
 import 'package:episode_guide/ui/series/episodes_screen.dart';
+import 'package:episode_guide/ui/series/person_details_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -414,45 +415,58 @@ class _CastSection extends StatelessWidget {
             itemCount: actors.length,
             itemBuilder: (context, index) {
               final character = actors[index];
-              return Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 6),
-                child: SizedBox(
-                  width: 100,
-                  child: Column(
-                    children: [
-                      CircleAvatar(
-                        radius: 38,
-                        backgroundColor: const Color(0xFF2A2A2A),
-                        backgroundImage: character.personImgURL != null
-                            ? CachedNetworkImageProvider(
-                                character.personImgURL!)
-                            : null,
-                        child: character.personImgURL == null
-                            ? const Icon(Icons.person,
-                                size: 36, color: Colors.white24)
-                            : null,
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        character.personName,
-                        style: const TextStyle(
-                            color: Colors.white70, fontSize: 13),
-                        textAlign: TextAlign.center,
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                      if (character.name != null) ...[
-                        const SizedBox(height: 2),
+              return GestureDetector(
+                onTap: character.peopleId != null
+                    ? () => Navigator.pushNamed(
+                          context,
+                          PersonDetailsScreen.routeName,
+                          arguments: PersonDetailsArgs(
+                            character.peopleId!,
+                            character.personName,
+                            character.personImgURL,
+                          ),
+                        )
+                    : null,
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 6),
+                  child: SizedBox(
+                    width: 100,
+                    child: Column(
+                      children: [
+                        CircleAvatar(
+                          radius: 38,
+                          backgroundColor: const Color(0xFF2A2A2A),
+                          backgroundImage: character.personImgURL != null
+                              ? CachedNetworkImageProvider(
+                                  character.personImgURL!)
+                              : null,
+                          child: character.personImgURL == null
+                              ? const Icon(Icons.person,
+                                  size: 36, color: Colors.white24)
+                              : null,
+                        ),
+                        const SizedBox(height: 8),
                         Text(
-                          character.name!,
+                          character.personName,
                           style: const TextStyle(
-                              color: Colors.white38, fontSize: 12),
+                              color: Colors.white70, fontSize: 13),
                           textAlign: TextAlign.center,
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,
                         ),
+                        if (character.name != null) ...[
+                          const SizedBox(height: 2),
+                          Text(
+                            character.name!,
+                            style: const TextStyle(
+                                color: Colors.white38, fontSize: 12),
+                            textAlign: TextAlign.center,
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ],
                       ],
-                    ],
+                    ),
                   ),
                 ),
               );

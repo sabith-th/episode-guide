@@ -9,6 +9,7 @@ class Character {
   final String? peopleType;
   final String? personImgURL;
   final bool? isFeatured;
+  final int? peopleId;
 
   Character(
     this.personName,
@@ -16,6 +17,7 @@ class Character {
     this.peopleType,
     this.personImgURL,
     this.isFeatured,
+    this.peopleId,
   );
 
   factory Character.fromJson(Map<String, dynamic> json) =>
