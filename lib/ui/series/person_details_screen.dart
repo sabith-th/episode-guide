@@ -1,6 +1,8 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:episode_guide/blocs/blocs.dart';
 import 'package:episode_guide/models/person.dart';
+import 'package:episode_guide/ui/movie/movie_details_screen.dart';
+import 'package:episode_guide/ui/series/series_details.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -58,6 +60,8 @@ class _PersonDetailsScreenState extends State<PersonDetailsScreen> {
               person: state.person,
               seriesNames: state.seriesNames,
               seriesImages: state.seriesImages,
+              movieNames: state.movieNames,
+              movieImages: state.movieImages,
               fallbackImage: args.personImgURL,
             );
           }
@@ -73,18 +77,27 @@ class _PersonBody extends StatelessWidget {
   final Person person;
   final Map<int, String> seriesNames;
   final Map<int, String> seriesImages;
+  final Map<int, String> movieNames;
+  final Map<int, String> movieImages;
   final String? fallbackImage;
 
   const _PersonBody({
     required this.person,
     required this.seriesNames,
     required this.seriesImages,
+    required this.movieNames,
+    required this.movieImages,
     required this.fallbackImage,
   });
 
   @override
   Widget build(BuildContext context) {
-    final roles = person.characters ?? [];
+    // Deduplicate by id, then remove roles with no useful info
+    final seen = <int>{};
+    final roles = (person.characters ?? [])
+        .where((r) => seen.add(r.id))
+        .where((r) => r.name != null || r.seriesId != null || r.movieId != null)
+        .toList();
 
     return ListView(
       padding: const EdgeInsets.fromLTRB(16, 24, 16, 32),
@@ -96,7 +109,13 @@ class _PersonBody extends StatelessWidget {
           const SizedBox(height: 28),
           Text('Roles', style: Theme.of(context).textTheme.headlineMedium),
           const SizedBox(height: 12),
-          _RolesGrid(roles: roles, seriesNames: seriesNames, seriesImages: seriesImages),
+          _RolesGrid(
+            roles: roles,
+            seriesNames: seriesNames,
+            seriesImages: seriesImages,
+            movieNames: movieNames,
+            movieImages: movieImages,
+          ),
         ],
         if (person.awards != null && person.awards!.isNotEmpty) ...[
           const SizedBox(height: 28),
@@ -204,11 +223,15 @@ class _RolesGrid extends StatelessWidget {
   final List<PersonRole> roles;
   final Map<int, String> seriesNames;
   final Map<int, String> seriesImages;
+  final Map<int, String> movieNames;
+  final Map<int, String> movieImages;
 
   const _RolesGrid({
     required this.roles,
     required this.seriesNames,
     required this.seriesImages,
+    required this.movieNames,
+    required this.movieImages,
   });
 
   @override
@@ -230,15 +253,47 @@ class _RolesGrid extends StatelessWidget {
         childAspectRatio: 0.58,
       ),
       itemCount: sorted.length,
-      itemBuilder: (_, i) => _RoleTile(
-        role: sorted[i],
-        seriesName: sorted[i].seriesId != null
-            ? seriesNames[sorted[i].seriesId]
-            : null,
-        seriesImage: sorted[i].seriesId != null
-            ? seriesImages[sorted[i].seriesId]
-            : null,
-      ),
+      itemBuilder: (ctx, i) {
+        final role = sorted[i];
+        final seriesName = role.seriesId != null ? seriesNames[role.seriesId] : null;
+        final seriesImage = role.seriesId != null ? seriesImages[role.seriesId] : null;
+        final movieName = role.movieId != null ? movieNames[role.movieId] : null;
+        final movieImage = role.movieId != null ? movieImages[role.movieId] : null;
+
+        VoidCallback? onTap;
+        if (role.seriesId != null) {
+          onTap = () => Navigator.pushNamed(
+                ctx,
+                SeriesDetailsScreen.routeName,
+                arguments: SeriesDetailsArgs(
+                  role.seriesId!,
+                  seriesName ?? 'TV Series',
+                  seriesImage,
+                ),
+              );
+        } else if (role.movieId != null) {
+          onTap = () => Navigator.pushNamed(
+                ctx,
+                MovieDetailsScreen.routeName,
+                arguments: MovieDetailsArgs(
+                  role.movieId!,
+                  movieName ?? 'Movie',
+                  movieImage,
+                ),
+              );
+        }
+
+        return GestureDetector(
+          onTap: onTap,
+          child: _RoleTile(
+            role: role,
+            seriesName: seriesName,
+            seriesImage: seriesImage,
+            movieName: movieName,
+            movieImage: movieImage,
+          ),
+        );
+      },
     );
   }
 }
@@ -247,15 +302,23 @@ class _RoleTile extends StatelessWidget {
   final PersonRole role;
   final String? seriesName;
   final String? seriesImage;
+  final String? movieName;
+  final String? movieImage;
 
-  const _RoleTile({required this.role, this.seriesName, this.seriesImage});
+  const _RoleTile({
+    required this.role,
+    this.seriesName,
+    this.seriesImage,
+    this.movieName,
+    this.movieImage,
+  });
 
   @override
   Widget build(BuildContext context) {
     final typeLabel = role.seriesId != null
-        ? (seriesName ?? 'TV Series')
+        ? seriesName
         : role.movieId != null
-            ? 'Movie'
+            ? movieName
             : null;
 
     return Column(
@@ -288,7 +351,7 @@ class _RoleTile extends StatelessWidget {
   }
 
   Widget _buildImage() {
-    final imageUrl = role.image ?? seriesImage;
+    final imageUrl = role.image ?? seriesImage ?? movieImage;
     if (imageUrl != null) {
       return CachedNetworkImage(
         imageUrl: imageUrl,

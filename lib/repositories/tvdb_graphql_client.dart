@@ -1,5 +1,7 @@
 import 'package:episode_guide/graphql_operations/queries/queries.dart'
     as queries;
+import 'package:episode_guide/models/episode_details.dart';
+import 'package:episode_guide/models/movie.dart';
 import 'package:episode_guide/models/next_episode.dart';
 import 'package:episode_guide/models/person.dart';
 import 'package:episode_guide/models/search_series_result.dart';
@@ -89,6 +91,53 @@ class TvdbGraphQLClient {
     }
     final Map<String, dynamic> personMap = result.data!['person'];
     return Person.fromJson(personMap);
+  }
+
+  Future<EpisodeDetails> getEpisodeDetails(int id) async {
+    final QueryResult result = await client.query(
+      QueryOptions(
+        document: gql(queries.getEpisodeDetails),
+        variables: <String, dynamic>{'id': id},
+        fetchPolicy: FetchPolicy.networkOnly,
+      ),
+    );
+    if (result.hasException) {
+      throw Exception(result.exception.toString());
+    }
+    final Map<String, dynamic> episodeMap = result.data!['episode'];
+    return EpisodeDetails.fromJson(episodeMap);
+  }
+
+  Future<({String? name, String? image})?> getMovieBasicInfo(int id) async {
+    final QueryResult result = await client.query(
+      QueryOptions(
+        document: gql(queries.getMovieName),
+        variables: <String, dynamic>{'id': id},
+        fetchPolicy: FetchPolicy.cacheFirst,
+      ),
+    );
+    if (result.hasException) return null;
+    final data = result.data?['movie'];
+    if (data == null) return null;
+    return (name: data['name'] as String?, image: data['image'] as String?);
+  }
+
+  Future<Movie> getMovieDetails(int id) async {
+    final QueryResult result = await client.query(
+      QueryOptions(
+        document: gql(queries.getMovieDetails),
+        variables: <String, dynamic>{'id': id},
+        fetchPolicy: FetchPolicy.networkOnly,
+      ),
+    );
+    if (result.hasException) {
+      throw Exception(result.exception.toString());
+    }
+    final movieMap =
+        Map<String, dynamic>.from(result.data!['movie'] as Map<String, dynamic>);
+    final translation = result.data!['movieTranslation'] as Map<String, dynamic>?;
+    movieMap['overview'] = translation?['overview'] as String?;
+    return Movie.fromJson(movieMap);
   }
 
   Future<SearchSeriesResult?> searchSeries(String name) async {

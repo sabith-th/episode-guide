@@ -1,6 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:episode_guide/blocs/blocs.dart';
 import 'package:episode_guide/models/series_episode.dart';
+import 'package:episode_guide/ui/series/episode_details_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -139,7 +140,7 @@ class _EpisodesListState extends State<_EpisodesList> {
               ),
             ),
             if (isExpanded)
-              ...eps.map((ep) => _EpisodeTile(episode: ep)),
+              ...eps.map((ep) => _EpisodeTile(episode: ep, context: context)),
             const Divider(color: Colors.white12, height: 1),
           ],
         );
@@ -150,17 +151,24 @@ class _EpisodesListState extends State<_EpisodesList> {
 
 class _EpisodeTile extends StatelessWidget {
   final SeriesEpisode episode;
+  final BuildContext context;
 
-  const _EpisodeTile({required this.episode});
+  const _EpisodeTile({required this.episode, required this.context});
 
   @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
+  Widget build(BuildContext ctx) {
+    final theme = Theme.of(ctx);
     final epLabel = episode.number != null ? 'E${episode.number}' : '';
 
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 12),
-      child: Row(
+    return GestureDetector(
+      onTap: () => Navigator.pushNamed(
+        context,
+        EpisodeDetailsScreen.routeName,
+        arguments: episode,
+      ),
+      child: Padding(
+        padding: const EdgeInsets.only(bottom: 12),
+        child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Still image or placeholder
@@ -225,6 +233,7 @@ class _EpisodeTile extends StatelessWidget {
             ),
           ),
         ],
+        ),
       ),
     );
   }

@@ -33,15 +33,19 @@ class PersonDetailsLoaded extends PersonDetailsState {
   final Person person;
   final Map<int, String> seriesNames;
   final Map<int, String> seriesImages;
+  final Map<int, String> movieNames;
+  final Map<int, String> movieImages;
 
   const PersonDetailsLoaded({
     required this.person,
     this.seriesNames = const {},
     this.seriesImages = const {},
+    this.movieNames = const {},
+    this.movieImages = const {},
   });
 
   @override
-  List<Object> get props => [person, seriesNames, seriesImages];
+  List<Object> get props => [person, seriesNames, seriesImages, movieNames, movieImages];
 }
 
 class PersonDetailsBloc extends Bloc<PersonDetailsEvent, PersonDetailsState> {
@@ -65,13 +69,30 @@ class PersonDetailsBloc extends Bloc<PersonDetailsEvent, PersonDetailsState> {
               .toSet()
               .toList() ??
           [];
+      final movieIds = person.characters
+              ?.map((c) => c.movieId)
+              .whereType<int>()
+              .toSet()
+              .toList() ??
+          [];
 
-      if (seriesIds.isNotEmpty) {
-        final info = await tvdbRepository.getSeriesBasicInfo(seriesIds);
+      if (seriesIds.isNotEmpty || movieIds.isNotEmpty) {
+        final results = await Future.wait([
+          seriesIds.isNotEmpty
+              ? tvdbRepository.getSeriesBasicInfo(seriesIds)
+              : Future.value(
+                  (names: <int, String>{}, images: <int, String>{})),
+          movieIds.isNotEmpty
+              ? tvdbRepository.getMovieBasicInfo(movieIds)
+              : Future.value(
+                  (names: <int, String>{}, images: <int, String>{})),
+        ]);
         emit(PersonDetailsLoaded(
           person: person,
-          seriesNames: info.names,
-          seriesImages: info.images,
+          seriesNames: results[0].names,
+          seriesImages: results[0].images,
+          movieNames: results[1].names,
+          movieImages: results[1].images,
         ));
       }
     } catch (error) {

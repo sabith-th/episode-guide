@@ -3,6 +3,8 @@ import 'package:episode_guide/constants.dart';
 import 'package:episode_guide/repositories/repositories.dart';
 import 'package:episode_guide/services/notification_service.dart';
 import 'package:episode_guide/tasks/episode_check_task.dart';
+import 'package:episode_guide/ui/movie/movie_details_screen.dart';
+import 'package:episode_guide/ui/series/episode_details_screen.dart';
 import 'package:episode_guide/ui/series/person_details_screen.dart';
 import 'package:episode_guide/ui/widgets.dart';
 import 'package:flutter/material.dart';
@@ -87,6 +89,14 @@ class _MyAppState extends State<MyApp> {
           create: (context) =>
               PersonDetailsBloc(tvdbRepository: widget.tvdbRepository),
         ),
+        BlocProvider<MovieDetailsBloc>(
+          create: (context) =>
+              MovieDetailsBloc(tvdbRepository: widget.tvdbRepository),
+        ),
+        BlocProvider<EpisodeDetailsBloc>(
+          create: (context) =>
+              EpisodeDetailsBloc(tvdbRepository: widget.tvdbRepository),
+        ),
       ],
       child: MaterialApp(
         title: 'Episode Guide',
@@ -149,6 +159,8 @@ class _MyAppState extends State<MyApp> {
           SearchSeriesScreen.routeName: (context) => SearchSeriesScreen(),
           EpisodesScreen.routeName: (context) => EpisodesScreen(),
           PersonDetailsScreen.routeName: (context) => PersonDetailsScreen(),
+          MovieDetailsScreen.routeName: (context) => MovieDetailsScreen(),
+          EpisodeDetailsScreen.routeName: (context) => EpisodeDetailsScreen(),
         },
       ),
     );

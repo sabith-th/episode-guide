@@ -28,6 +28,15 @@ class _SeriesDetailsScreenState extends State<SeriesDetailsScreen> {
   bool _overviewExpanded = false;
 
   @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final args =
+        ModalRoute.of(context)!.settings.arguments as SeriesDetailsArgs;
+    BlocProvider.of<SeriesDetailsBloc>(context)
+        .add(FetchSeriesDetails(id: args.id));
+  }
+
+  @override
   Widget build(BuildContext context) {
     final SeriesDetailsArgs args =
         ModalRoute.of(context)!.settings.arguments as SeriesDetailsArgs;

@@ -1,3 +1,5 @@
+export './getEpisodeDetails.dart';
+export './getMovie.dart';
 export './getNextEpisode.dart';
 export './getPerson.dart';
 export './getSeriesDetails.dart';

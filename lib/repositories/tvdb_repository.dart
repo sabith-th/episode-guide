@@ -1,3 +1,5 @@
+import 'package:episode_guide/models/episode_details.dart';
+import 'package:episode_guide/models/movie.dart';
 import 'package:episode_guide/models/next_episode.dart';
 import 'package:episode_guide/models/person.dart';
 import 'package:episode_guide/models/search_series_result.dart';
@@ -39,6 +41,32 @@ class TvdbRepository {
     final names = <int, String>{};
     final images = <int, String>{};
     for (final entry in results.whereType<({int id, ({String? name, String? image}) info})>()) {
+      if (entry.info.name != null) names[entry.id] = entry.info.name!;
+      if (entry.info.image != null) images[entry.id] = entry.info.image!;
+    }
+    return (names: names, images: images);
+  }
+
+  Future<EpisodeDetails> getEpisodeDetails(int id) async {
+    return await tvdbGraphQLClient.getEpisodeDetails(id);
+  }
+
+  Future<Movie> getMovieDetails(int id) async {
+    return await tvdbGraphQLClient.getMovieDetails(id);
+  }
+
+  Future<({Map<int, String> names, Map<int, String> images})> getMovieBasicInfo(
+      List<int> ids) async {
+    final results = await Future.wait(
+      ids.map((id) async {
+        final info = await tvdbGraphQLClient.getMovieBasicInfo(id);
+        return info != null ? (id: id, info: info) : null;
+      }),
+    );
+    final names = <int, String>{};
+    final images = <int, String>{};
+    for (final entry
+        in results.whereType<({int id, ({String? name, String? image}) info})>()) {
       if (entry.info.name != null) names[entry.id] = entry.info.name!;
       if (entry.info.image != null) images[entry.id] = entry.info.image!;
     }

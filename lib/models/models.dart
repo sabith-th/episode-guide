@@ -1,4 +1,6 @@
+export 'episode_details.dart';
 export 'images.dart';
+export 'movie.dart';
 export 'next_episode.dart';
 export 'person.dart';
 export 'search_series_result.dart';
