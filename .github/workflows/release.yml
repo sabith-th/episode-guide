@@ -1,0 +1,104 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Release tag (e.g. v1.2.3)'
+        required: true
+
+jobs:
+  build-and-release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Resolve version
+        id: version
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "tag=${{ github.event.inputs.tag }}" >> $GITHUB_OUTPUT
+          else
+            echo "tag=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Decode keystore
+        run: echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 --decode > android/app/keystore.jks
+
+      - name: Write key.properties
+        run: |
+          cat > android/key.properties <<EOF
+          storePassword=${{ secrets.STORE_PASSWORD }}
+          keyPassword=${{ secrets.KEY_PASSWORD }}
+          keyAlias=${{ secrets.KEY_ALIAS }}
+          storeFile=keystore.jks
+          EOF
+
+      - name: Build signed APK
+        run: |
+          VERSION="${{ steps.version.outputs.tag }}"
+          flutter build apk --release \
+            --build-name="${VERSION#v}" \
+            --build-number="${{ github.run_number }}"
+
+      - name: Generate changelog
+        id: changelog
+        run: |
+          CURRENT_TAG="${{ steps.version.outputs.tag }}"
+          PREV_TAG=$(git tag --sort=-creatordate | grep -v "^${CURRENT_TAG}$" | head -1)
+          if [ -z "$PREV_TAG" ]; then
+            LOG=$(git log --pretty=format:"- %s" | head -30)
+          else
+            LOG=$(git log --pretty=format:"- %s" "${PREV_TAG}..HEAD")
+          fi
+          {
+            echo 'body<<CHANGELOG_EOF'
+            echo "## What's Changed"
+            echo ""
+            echo "$LOG"
+            echo ""
+            if [ -n "$PREV_TAG" ]; then
+              echo "**Full diff:** [\`${PREV_TAG}..${CURRENT_TAG}\`](https://github.com/${{ github.repository }}/compare/${PREV_TAG}...${CURRENT_TAG})"
+            fi
+            echo 'CHANGELOG_EOF'
+          } >> $GITHUB_OUTPUT
+
+      - name: Rename APK
+        run: |
+          VERSION="${{ steps.version.outputs.tag }}"
+          cp build/app/outputs/flutter-apk/app-release.apk \
+             "build/app/outputs/flutter-apk/episode-guide-${VERSION}.apk"
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.version.outputs.tag }}
+          name: Episode Guide ${{ steps.version.outputs.tag }}
+          body: ${{ steps.changelog.outputs.body }}
+          files: build/app/outputs/flutter-apk/episode-guide-${{ steps.version.outputs.tag }}.apk
+          draft: false
+          prerelease: false
